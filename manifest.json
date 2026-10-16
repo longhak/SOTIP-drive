@@ -2,7 +2,7 @@
   "name": "SOTIP Cloud Drive",
   "short_name": "SOTIP Drive",
   "description": "ឃ្លាំងផ្ទុកឯកសារផ្ទាល់ខ្លួនដោយប្រើ Telegram",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#132e53",
   "theme_color": "#132e53",

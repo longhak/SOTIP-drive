@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://github.com/longhak/SOTIP-drive/blob/main/SOTIP%20Drive.png",
+      "src": "./SOTIP Drive.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

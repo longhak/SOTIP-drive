@@ -1,76 +1,156 @@
 <!DOCTYPE html>
 <html lang="km">
 <head>
+  <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <title>SOTIP Drive (GitHub Edition)</title>
-  <!-- កូដសម្រាប់ធ្វើជា App (PWA) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SOTIP Drive</title>
+
+  <!-- កូដសម្រាប់ធ្វើជា App (PWA) លើទូរស័ព្ទ និងកុំព្យូទ័រ -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#132e53">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="SOTIP Drive">
+  <link rel="icon" type="image/png" href="./sotip-drive.png">
+  <link rel="apple-touch-icon" href="./sotip-drive.png">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    /* រក្សាទុកកូដ CSS ដដែលទាំងអស់ដូចកូដមុន (សុំកាត់បន្ថយប្រវែងអត្ថបទទីនេះ ដើម្បីផ្ដោតលើ JS) */
-    :root, body[data-theme="basic"] { --sidebar-width: 265px; --bg-body: #f4f6f9; --bg-panel: #ffffff; --bg-sidebar: #132e53; --bg-topbar: #ffffff; --text-sidebar: #ffffff; --text-topbar: #0f172a; --primary: #1e56a0; --primary-hover: #163e75; --accent-gold: #eab308; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --danger: #ef4444; --hover-bg: #f1f5f9; --card-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    body[data-theme="modern"] { --bg-body: #162a45; --bg-panel: #1f3758; --bg-sidebar: #122238; --bg-topbar: #1f3758; --text-sidebar: #f1f5f9; --text-topbar: #f1f5f9; --primary: #3b82f6; --primary-hover: #2563eb; --accent-gold: #facc15; --text-main: #f1f5f9; --text-muted: #94a3b8; --border: #2e4a70; --hover-bg: #27446b; --card-shadow: 0 4px 12px rgba(0,0,0,0.25); }
-    body[data-theme="dynamic"] { --bg-body: #0a1c3a; --bg-panel: #102a54; --bg-sidebar: #08152c; --bg-topbar: #0d2346; --text-sidebar: #ffffff; --text-topbar: #ffffff; --primary: #0077ff; --primary-hover: #005ce6; --accent-gold: #fbbf24; --text-main: #ffffff; --text-muted: #93c5fd; --border: #1e4b8f; --hover-bg: #17386d; --card-shadow: 0 4px 16px rgba(0,119,255,0.18); }
-    body[data-theme="lunar"] { --bg-body: #fff5f2; --bg-panel: #ffffff; --bg-sidebar: linear-gradient(180deg, #b91c1c 0%, #ea580c 100%); --bg-topbar: #ffffff; --text-sidebar: #ffffff; --text-topbar: #7f1d1d; --primary: #dc2626; --primary-hover: #b91c1c; --accent-gold: #fcd34d; --text-main: #450a0a; --text-muted: #9a3412; --border: #fed7aa; --hover-bg: #ffedd5; --card-shadow: 0 4px 12px rgba(220,38,38,0.08); }
-    body[data-theme="linear"] { --bg-body: #060911; --bg-panel: #0f1626; --bg-sidebar: #04060c; --bg-topbar: #0a0f1c; --text-sidebar: #f8fafc; --text-topbar: #f8fafc; --primary: #0ea5e9; --primary-hover: #0284c7; --accent-gold: #f59e0b; --text-main: #f8fafc; --text-muted: #64748b; --border: #1e293b; --hover-bg: #17223b; --card-shadow: 0 4px 20px rgba(14,165,233,0.12); }
+    /* ================= 1. ការកំណត់ពណ៌តាម Themes ទាំង ៥ ================= */
+    :root, body[data-theme="basic"] {
+      --sidebar-width: 265px; --bg-body: #f4f6f9; --bg-panel: #ffffff; --bg-sidebar: #132e53; --bg-topbar: #ffffff;
+      --text-sidebar: #ffffff; --text-topbar: #0f172a; --primary: #1e56a0; --primary-hover: #163e75; --accent-gold: #eab308;
+      --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --danger: #ef4444; --hover-bg: #f1f5f9;
+      --card-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    body[data-theme="modern"] {
+      --bg-body: #162a45; --bg-panel: #1f3758; --bg-sidebar: #122238; --bg-topbar: #1f3758;
+      --text-sidebar: #f1f5f9; --text-topbar: #f1f5f9; --primary: #3b82f6; --primary-hover: #2563eb; --accent-gold: #facc15;
+      --text-main: #f1f5f9; --text-muted: #94a3b8; --border: #2e4a70; --hover-bg: #27446b;
+      --card-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    body[data-theme="dynamic"] {
+      --bg-body: #0a1c3a; --bg-panel: #102a54; --bg-sidebar: #08152c; --bg-topbar: #0d2346;
+      --text-sidebar: #ffffff; --text-topbar: #ffffff; --primary: #0077ff; --primary-hover: #005ce6; --accent-gold: #fbbf24;
+      --text-main: #ffffff; --text-muted: #93c5fd; --border: #1e4b8f; --hover-bg: #17386d;
+      --card-shadow: 0 4px 16px rgba(0,119,255,0.18);
+    }
+    body[data-theme="lunar"] {
+      --bg-body: #fff5f2; --bg-panel: #ffffff; --bg-sidebar: linear-gradient(180deg, #b91c1c 0%, #ea580c 100%); --bg-topbar: #ffffff;
+      --text-sidebar: #ffffff; --text-topbar: #7f1d1d; --primary: #dc2626; --primary-hover: #b91c1c; --accent-gold: #fcd34d;
+      --text-main: #450a0a; --text-muted: #9a3412; --border: #fed7aa; --hover-bg: #ffedd5;
+      --card-shadow: 0 4px 12px rgba(220,38,38,0.08);
+    }
+    body[data-theme="linear"] {
+      --bg-body: #060911; --bg-panel: #0f1626; --bg-sidebar: #04060c; --bg-topbar: #0a0f1c;
+      --text-sidebar: #f8fafc; --text-topbar: #f8fafc; --primary: #0ea5e9; --primary-hover: #0284c7; --accent-gold: #f59e0b;
+      --text-main: #f8fafc; --text-muted: #64748b; --border: #1e293b; --hover-bg: #17223b;
+      --card-shadow: 0 4px 20px rgba(14,165,233,0.12);
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body, input, button, select, textarea { margin: 0; padding: 0; background-color: var(--bg-body); color: var(--text-main); font-family: 'Battambang', 'Kantumruy Pro', sans-serif !important; }
+    
+    body, input, button, select, textarea { 
+      margin: 0; padding: 0; 
+      background-color: var(--bg-body); 
+      color: var(--text-main); 
+      font-family: 'Khmer OS Siemreap', 'Battambang', 'Kantumruy Pro', sans-serif !important; 
+    }
+    
     body { height: 100vh; height: 100dvh; display: flex; overflow: hidden; transition: background-color 0.25s, color 0.25s; }
+    body[data-theme="linear"] .main-content { background: radial-gradient(circle at 85% 15%, rgba(29,78,216,0.22) 0%, transparent 45%), radial-gradient(circle at 15% 85%, rgba(14,165,233,0.15) 0%, transparent 45%); }
+
+    /* ================= Sidebar ================= */
     .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); color: var(--text-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 22px 16px; z-index: 1050; transition: transform 0.3s ease; flex-shrink: 0; }
     .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px); }
+    .sidebar-overlay.open { display: block; }
     .logo-area { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; padding: 0 6px; }
     .logo-brand { display: flex; align-items: center; gap: 12px; }
     .logo-icon { width: 42px; height: 42px; background: rgba(255,255,255,0.15); color: var(--accent-gold); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; border: 1px solid rgba(255,255,255,0.2); }
     .logo-text h2 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #fff; line-height: 1.2;}
     .logo-text p { margin: 0; font-size: 0.72rem; color: rgba(255,255,255,0.75); }
     .btn-close-sidebar { display: none; background: none; border: none; font-size: 1.3rem; color: #fff; cursor: pointer; }
+
     .nav-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 12px; color: rgba(255,255,255,0.85); text-decoration: none; font-weight: 500; margin-bottom: 6px; cursor: pointer; transition: all 0.2s; }
     .nav-item:hover { background-color: rgba(255,255,255,0.12); color: #fff; }
     .nav-item.active { background-color: rgba(255,255,255,0.2); color: #fff; font-weight: 600; border-left: 4px solid var(--accent-gold); }
     .nav-item i { font-size: 1.15rem; }
+
     .storage-area { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 14px; margin-top: auto; color: #fff; }
     .storage-header { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; }
     .progress { height: 6px; border-radius: 4px; background-color: rgba(255,255,255,0.2); margin-bottom: 8px; }
     .progress-bar { background-color: var(--accent-gold); width: 25%; border-radius: 4px; }
     .storage-desc { font-size: 0.7rem; color: rgba(255,255,255,0.75); line-height: 1.4; margin: 0; }
+
+    /* ================= Main Content ================= */
     .main-content { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; position: relative; width: 100%; }
+    
     .topbar { height: 68px; background: var(--bg-topbar); color: var(--text-topbar); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; gap: 12px; flex-shrink: 0; }
     .mobile-menu-btn { display: none; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-panel); color: var(--text-main); font-size: 1.3rem; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+    
     .search-bar { display: flex; align-items: center; background-color: rgba(150,150,150,0.12); border: 1px solid var(--border); border-radius: 12px; padding: 8px 14px; flex: 1; min-width: 0; max-width: 480px; }
     .search-bar i { flex-shrink: 0; }
     .search-bar input { border: none; outline: none; background: transparent; width: 100%; color: var(--text-topbar); margin-left: 10px; font-size: 0.92rem; min-width: 0; }
     .search-bar input::placeholder { color: var(--text-muted); }
+    
     .view-toggles { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
     .view-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background-color: var(--bg-panel); border-radius: 10px; color: var(--text-main); cursor: pointer; transition: all 0.2s; flex-shrink: 0;}
     .view-btn.active { background-color: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* ================= Action Bar ================= */
     .action-bar { padding: 16px 24px 12px; display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
     .btn-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; user-select: none; }
     .btn-outline { background-color: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); box-shadow: var(--card-shadow); }
     .btn-outline:hover { background-color: var(--hover-bg); }
+
+    /* Content Area */
     .content-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 24px 40px; }
     .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
     .breadcrumb-title { font-size: 1rem; font-weight: 600; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .breadcrumb-title a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
     .breadcrumb-title a:hover { color: var(--primary); }
+
+    /* ================= File Grid & List ================= */
     .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
     .file-grid.list-view { display: flex; flex-direction: column; gap: 8px; }
-    .file-card { background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px 12px 14px; text-align: center; position: relative; transition: all 0.2s; box-shadow: var(--card-shadow); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; z-index: 1; }
+    
+    .file-card { 
+      background-color: var(--bg-panel); border: 1px solid var(--border); 
+      border-radius: 16px; padding: 18px 12px 14px; text-align: center; 
+      position: relative; transition: all 0.2s; box-shadow: var(--card-shadow); 
+      display: flex; flex-direction: column; align-items: center; 
+      justify-content: flex-start; height: 100%; z-index: 1; 
+    }
     .file-card:hover { border-color: var(--primary); transform: translateY(-2px); }
     .file-card.has-menu-open { z-index: 100 !important; }
-    .card-icon-wrap { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin-bottom: 10px; cursor: pointer; position: relative; flex-shrink: 0;}
-    .ext-badge { position: absolute; bottom: -4px; right: -4px; font-size: 0.58rem; font-weight: 700; padding: 2px 5px; border-radius: 5px; color: #fff; text-transform: uppercase; }
+    
+    .card-icon-wrap { 
+      width: 60px; height: 60px; border-radius: 15px; 
+      display: flex; align-items: center; justify-content: center; 
+      font-size: 2.2rem; margin-bottom: 10px; cursor: pointer; 
+      position: relative; flex-shrink: 0;
+    }
+    .ext-badge { 
+      position: absolute; bottom: -4px; right: -4px; font-size: 0.58rem; 
+      font-weight: 700; padding: 2px 5px; border-radius: 5px; color: #fff; 
+      text-transform: uppercase; 
+    }
+    
     .card-info { width: 100%; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; flex: 1; }
-    .card-name { font-size: 0.88rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal; word-break: break-word; line-height: 1.3;}
+    .card-name { 
+      font-size: 0.88rem; font-weight: 600; color: var(--text-main); 
+      margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; text-overflow: ellipsis; white-space: normal; word-break: break-word; line-height: 1.3;
+    }
     .card-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: auto; }
     .card-menu { position: absolute; top: 6px; right: 6px; z-index: 20;}
+
+    /* ម៉ឺនុយត្រេបី (Dropdown) */
     .btn-dots { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
     .btn-dots:hover { background-color: var(--hover-bg); color: var(--text-main); }
     .custom-menu { display: none; position: absolute; top: 34px; right: 0; width: 195px; background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); padding: 6px; z-index: 1000; text-align: left; }
@@ -78,15 +158,17 @@
     .custom-menu-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; font-size: 0.85rem; font-weight: 500; color: var(--text-main); border-radius: 8px; cursor: pointer; user-select: none; }
     .custom-menu-item:hover { background-color: var(--hover-bg); }
     .custom-menu-divider { height: 1px; background-color: var(--border); margin: 4px 0; }
-    .file-grid.list-view .file-card { flex-direction: row; text-align: left; padding: 10px 14px; border-radius: 12px; gap: 12px; transform: none; height: auto; align-items: center;}
+
+    /* List View */
+    .file-grid.list-view .file-card { flex-direction: row; text-align: left; padding: 10px 14px; border-radius: 12px; gap: 12px; transform: none; height: auto; align-items: center; }
     .file-grid.list-view .card-icon-wrap { width: 42px; height: 42px; font-size: 1.5rem; margin-bottom: 0; border-radius: 10px; flex-shrink: 0; }
     .file-grid.list-view .ext-badge { display: none; }
     .file-grid.list-view .card-info { flex: 1; flex-direction: column; justify-content: center; }
     .file-grid.list-view .card-name { -webkit-line-clamp: 1; margin-bottom: 2px; }
     .file-grid.list-view .card-meta { margin-top: 0; }
     .file-grid.list-view .card-menu { position: static; }
-    
-    /* Modals */
+
+    /* ================= Custom Modals ================= */
     .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2500; display: none; align-items: center; justify-content: center; padding: 16px; }
     .custom-modal-overlay.active { display: flex; }
     .custom-modal-box { background-color: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 450px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: modalFadeIn 0.2s ease; }
@@ -100,7 +182,7 @@
     .cm-input { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border); background-color: var(--bg-body); color: var(--text-main); font-size: 0.95rem; font-family: inherit; outline: none; }
     .cm-input:focus { border-color: var(--primary); }
 
-    /* Theme Selector */
+    /* ================= ផ្ទាំង Theme Selector ================= */
     .theme-options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 16px; }
     .theme-card { border: 2px solid var(--border); border-radius: 14px; padding: 16px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg-panel); }
     .theme-card:hover { border-color: var(--primary); transform: translateY(-2px); }
@@ -114,13 +196,14 @@
     .tc-linear { background: #060911; border: 3px solid #0ea5e9; }
     .theme-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
 
-    /* Others */
+    /* Overlay & Toast */
     .drag-overlay { position: absolute; inset: 16px; background: rgba(37, 99, 235, 0.08); backdrop-filter: blur(2px); border: 3px dashed var(--primary); border-radius: 20px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; pointer-events: none; }
     .drag-overlay.active { display: flex; pointer-events: auto; }
     .toast-status { position: fixed; bottom: 20px; right: 20px; background-color: #0f172a; color: #ffffff; padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); z-index: 4000; transform: translateY(120px); opacity: 0; transition: all 0.3s; max-width: calc(100vw - 32px); font-size: 0.88rem; pointer-events: none; }
     .toast-status.show { transform: translateY(0); opacity: 1; }
-    #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 75vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 75vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; }
 
+    /* ================= Mobile Responsive ================= */
     @media (max-width: 768px) {
       .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25); }
       .sidebar.open { transform: translateX(0); }
@@ -144,13 +227,14 @@
 
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
 
+  <!-- ================= Sidebar ================= -->
   <aside class="sidebar" id="sidebar">
     <div class="logo-area">
       <div class="logo-brand">
         <div class="logo-icon"><i class="bi bi-cloud-check-fill"></i></div>
         <div class="logo-text">
           <h2>SOTIP Drive</h2>
-          <p>GitHub Edition</p>
+          <p>ឃ្លាំងឯកសារផ្ទាល់ខ្លួន</p>
         </div>
       </div>
       <button type="button" class="btn-close-sidebar" onclick="toggleSidebar(false)"><i class="bi bi-x-lg"></i></button>
@@ -179,10 +263,11 @@
       <div class="progress">
         <div class="progress-bar"></div>
       </div>
-      <p class="storage-desc">រក្សាទុកដោយសុវត្ថិភាពក្នុង Telegram Cloud (អតិបរមា 20MB)</p>
+      <p class="storage-desc">រក្សាទុកដោយសុវត្ថិភាពក្នុង Telegram Cloud (គាំទ្រឯកសារធំលើស 20MB)</p>
     </div>
   </aside>
 
+  <!-- ================= Main Content ================= -->
   <main class="main-content" id="dropZone">
     <div class="drag-overlay" id="dragOverlay">
       <i class="bi bi-cloud-arrow-up-fill" style="font-size: 3.5rem; color: var(--primary);"></i>
@@ -239,38 +324,55 @@
     </div>
   </main>
 
+  <!-- Toast Status -->
   <div class="toast-status" id="toastStatus">
     <div class="spinner-border spinner-border-sm" id="toastSpinner"></div>
     <span id="toastText">កំពុងដំណើរការ...</span>
   </div>
 
-  <!-- Modals ទាំងអស់រក្សាទុកដូចដើម -->
-  <!-- 1. Theme -->
+  <!-- Modal 1: ជ្រើសរើស Theme -->
   <div class="custom-modal-overlay" id="themeModal">
     <div class="custom-modal-box">
       <div class="cm-header">
-        <h5 class="cm-title"><i class="bi bi-palette-fill text-primary"></i> ជ្រើសរើសរចនាបថ</h5>
+        <h5 class="cm-title"><i class="bi bi-palette-fill text-primary"></i> ជ្រើសរើសរចនាបថ (Themes)</h5>
         <button type="button" class="cm-close" onclick="closeModal('themeModal')"><i class="bi bi-x-lg"></i></button>
       </div>
       <div class="cm-body">
         <div class="theme-options-grid">
-          <div class="theme-card active" id="theme-card-basic" onclick="selectAppTheme('basic')"><div class="theme-color-circle tc-basic"></div><div class="theme-name">Basic</div></div>
-          <div class="theme-card" id="theme-card-modern" onclick="selectAppTheme('modern')"><div class="theme-color-circle tc-modern"></div><div class="theme-name">Modern</div></div>
-          <div class="theme-card" id="theme-card-dynamic" onclick="selectAppTheme('dynamic')"><div class="theme-color-circle tc-dynamic"></div><div class="theme-name">Dynamic</div></div>
-          <div class="theme-card" id="theme-card-lunar" onclick="selectAppTheme('lunar')"><div class="theme-color-circle tc-lunar"></div><div class="theme-name">Lunar</div></div>
-          <div class="theme-card" id="theme-card-linear" onclick="selectAppTheme('linear')"><div class="theme-color-circle tc-linear"></div><div class="theme-name">Linear</div></div>
+          <div class="theme-card active" id="theme-card-basic" onclick="selectAppTheme('basic', true)">
+            <div class="theme-color-circle tc-basic"></div>
+            <div class="theme-name">Basic</div>
+          </div>
+          <div class="theme-card" id="theme-card-modern" onclick="selectAppTheme('modern', true)">
+            <div class="theme-color-circle tc-modern"></div>
+            <div class="theme-name">Modern</div>
+          </div>
+          <div class="theme-card" id="theme-card-dynamic" onclick="selectAppTheme('dynamic', true)">
+            <div class="theme-color-circle tc-dynamic"></div>
+            <div class="theme-name">Dynamic</div>
+          </div>
+          <div class="theme-card" id="theme-card-lunar" onclick="selectAppTheme('lunar', true)">
+            <div class="theme-color-circle tc-lunar"></div>
+            <div class="theme-name">Lunar</div>
+          </div>
+          <div class="theme-card" id="theme-card-linear" onclick="selectAppTheme('linear', true)">
+            <div class="theme-color-circle tc-linear"></div>
+            <div class="theme-name">Linear</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 2. Preview -->
+  <!-- Modal 2: Preview -->
   <div class="custom-modal-overlay" id="previewModal">
     <div class="custom-modal-box modal-xl-box">
       <div class="cm-header">
         <h6 class="cm-title text-truncate me-2" id="previewTitle">មើលជាមុន</h6>
         <div class="d-flex gap-2 align-items-center flex-shrink-0">
-          <a href="#" id="btnDownloadPreview" target="_blank" download class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;"><i class="bi bi-download me-1"></i> ទាញយក</a>
+          <a href="#" id="btnDownloadPreview" target="_blank" download class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;">
+            <i class="bi bi-download me-1"></i> ទាញយក
+          </a>
           <button type="button" class="cm-close" onclick="closeModal('previewModal')"><i class="bi bi-x-lg"></i></button>
         </div>
       </div>
@@ -278,54 +380,90 @@
     </div>
   </div>
 
-  <!-- 3. Folder -->
+  <!-- Modal 3: បង្កើត Folder -->
   <div class="custom-modal-overlay" id="folderModal">
     <div class="custom-modal-box">
-      <div class="cm-header"><h5 class="cm-title"><i class="bi bi-folder-plus text-warning"></i> បង្កើត Folder ថ្មី</h5><button type="button" class="cm-close" onclick="closeModal('folderModal')"><i class="bi bi-x-lg"></i></button></div>
-      <div class="cm-body"><input type="text" class="cm-input" id="folderName" placeholder="បញ្ចូលឈ្មោះ Folder..."></div>
-      <div class="cm-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('folderModal')">បោះបង់</button><button type="button" class="btn btn-primary px-4" onclick="createFolder()">បង្កើត</button></div>
+      <div class="cm-header">
+        <h5 class="cm-title"><i class="bi bi-folder-plus text-warning"></i> បង្កើត Folder ថ្មី</h5>
+        <button type="button" class="cm-close" onclick="closeModal('folderModal')"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="cm-body">
+        <input type="text" class="cm-input" id="folderName" placeholder="បញ្ចូលឈ្មោះ Folder...">
+      </div>
+      <div class="cm-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('folderModal')">បោះបង់</button>
+        <button type="button" class="btn btn-primary px-4" onclick="createFolder()">បង្កើត</button>
+      </div>
     </div>
   </div>
 
-  <!-- 4. Rename -->
+  <!-- Modal 4: ប្ដូរឈ្មោះ -->
   <div class="custom-modal-overlay" id="renameModal">
     <div class="custom-modal-box">
-      <div class="cm-header"><h5 class="cm-title"><i class="bi bi-pencil-square text-warning"></i> ប្ដូរឈ្មោះ / កែប្រែ</h5><button type="button" class="cm-close" onclick="closeModal('renameModal')"><i class="bi bi-x-lg"></i></button></div>
-      <div class="cm-body"><input type="hidden" id="renameItemId"><input type="text" class="cm-input" id="newItemName" placeholder="ឈ្មោះថ្មី..."></div>
-      <div class="cm-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')">បោះបង់</button><button type="button" class="btn btn-warning px-4 fw-bold" onclick="submitRename()">រក្សាទុក</button></div>
+      <div class="cm-header">
+        <h5 class="cm-title"><i class="bi bi-pencil-square text-warning"></i> ប្ដូរឈ្មោះ / កែប្រែ</h5>
+        <button type="button" class="cm-close" onclick="closeModal('renameModal')"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="cm-body">
+        <input type="hidden" id="renameItemId">
+        <input type="text" class="cm-input" id="newItemName" placeholder="ឈ្មោះថ្មី...">
+      </div>
+      <div class="cm-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('renameModal')">បោះបង់</button>
+        <button type="button" class="btn btn-warning px-4 fw-bold" onclick="submitRename()">រក្សាទុក</button>
+      </div>
     </div>
   </div>
 
-  <!-- 5. Move -->
+  <!-- Modal 5: ផ្លាស់ទី -->
   <div class="custom-modal-overlay" id="moveModal">
     <div class="custom-modal-box">
-      <div class="cm-header"><h5 class="cm-title"><i class="bi bi-arrows-move text-info"></i> ផ្លាស់ទីទៅកាន់...</h5><button type="button" class="cm-close" onclick="closeModal('moveModal')"><i class="bi bi-x-lg"></i></button></div>
-      <div class="cm-body"><input type="hidden" id="moveItemId"><select class="cm-input" id="moveTargetFolder"></select></div>
-      <div class="cm-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('moveModal')">បោះបង់</button><button type="button" class="btn btn-info text-white px-4 fw-bold" onclick="submitMove()">ផ្លាស់ទី</button></div>
+      <div class="cm-header">
+        <h5 class="cm-title"><i class="bi bi-arrows-move text-info"></i> ផ្លាស់ទីទៅកាន់...</h5>
+        <button type="button" class="cm-close" onclick="closeModal('moveModal')"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="cm-body">
+        <input type="hidden" id="moveItemId">
+        <select class="cm-input" id="moveTargetFolder"></select>
+      </div>
+      <div class="cm-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('moveModal')">បោះបង់</button>
+        <button type="button" class="btn btn-info text-white px-4 fw-bold" onclick="submitMove()">ផ្លាស់ទី</button>
+      </div>
     </div>
   </div>
 
-  <!-- 6. Delete -->
+  <!-- Modal 6: បញ្ជាក់ការលុប -->
   <div class="custom-modal-overlay" id="deleteModal">
     <div class="custom-modal-box">
-      <div class="cm-header"><h5 class="cm-title text-danger"><i class="bi bi-trash3-fill"></i> បញ្ជាក់ការលុប</h5><button type="button" class="cm-close" onclick="closeModal('deleteModal')"><i class="bi bi-x-lg"></i></button></div>
-      <div class="cm-body"><input type="hidden" id="deleteItemId"><p class="mb-0" id="deleteConfirmText">តើអ្នកពិតជាចង់លុបធាតុនេះមែនទេ?</p></div>
-      <div class="cm-footer"><button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">បោះបង់</button><button type="button" class="btn btn-danger px-4 fw-bold" onclick="confirmDeleteItem()">លុបចោល</button></div>
+      <div class="cm-header">
+        <h5 class="cm-title text-danger"><i class="bi bi-trash3-fill"></i> បញ្ជាក់ការលុប</h5>
+        <button type="button" class="cm-close" onclick="closeModal('deleteModal')"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="cm-body">
+        <input type="hidden" id="deleteItemId">
+        <p class="mb-0" id="deleteConfirmText">តើអ្នកពិតជាចង់លុបធាតុនេះមែនទេ?</p>
+      </div>
+      <div class="cm-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">បោះបង់</button>
+        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="confirmDeleteItem()">លុបចោល</button>
+      </div>
     </div>
   </div>
 
-  <!-- ================= Scripts សំខាន់បំផុត សម្រាប់ GitHub ================= -->
+  <!-- ================= JavaScript ពេញលេញ ================= -->
   <script>
     // ----------------------------------------------------------------------
     // ចំណុចសំខាន់៖ សូមយក Web App URL ពី Google Apps Script មកដាក់ទីនេះ
     // ----------------------------------------------------------------------
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw4YhM2A8wyu3k7EJ9sMF7BXPFKhQf9BMxdppmC4tY2D3-GIZQMtUywZwdfpkHKYZU2/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw4YhM2A8wyu3k7EJ9sMF7BXPFKhQf9BMxdppmC4tY2D3-GIZQMtUywZwdfpkHKYZU2/execេះ";
 
     let currentParentId = 'root';
     let isUploading = false;
     let tgConfig = {};
     let allCurrentFiles = [];
     let renderedFiles = [];
+    let currentPreviewText = '';
 
     function safeGetStorage(key, fallback) {
       try { return window.localStorage.getItem(key) || fallback; } catch (e) { return fallback; }
@@ -344,12 +482,11 @@
       selectAppTheme(savedTheme, false);
       setupDragDrop();
       
-      // ទាញយក Config (Token & Chat ID) និងបញ្ជីឯកសារ ពេលបើកវេបសាយដំបូង
       apiCall('getConfig').then(conf => {
-        tgConfig = conf;
+        tgConfig = conf || {};
         loadFiles();
       }).catch(err => {
-        showToast('❌ មិនអាចភ្ជាប់ទៅកាន់ Google Server ទេ: ' + err, false);
+        showToast('❌ មិនអាចភ្ជាប់ទៅកាន់ Server ទេ: ' + err.message, false);
       });
 
       document.getElementById('folderName').addEventListener('keydown', e => { if (e.key === 'Enter') createFolder(); });
@@ -357,10 +494,33 @@
       document.addEventListener('click', closeAllMenus);
     });
 
-    // ================== មុខងារតភ្ជាប់ទៅកាន់ API (ជំនួស google.script.run) ==================
+    // ================== មុខងារតភ្ជាប់ Hybrid (ដើរទាំងលើ GitHub និងលើ Google Apps Script) ==================
     async function apiCall(action, params = {}) {
-      if (GAS_API_URL === "ដាក់_WEB_APP_URL_របស់_អ្នកនៅទីនេះ") {
-        throw new Error("អ្នកមិនទាន់បានដាក់ GAS_API_URL នៅឡើយទេ!");
+      // 1. ប្រសិនបើបើកផ្ទាល់នៅលើ Google Apps Script
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        return new Promise((resolve, reject) => {
+          const runner = google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(err => reject(new Error(err.message || err)));
+          
+          if (action === 'getConfig') runner.getConfig();
+          else if (action === 'getFilesList') runner.getFilesList(params.parentId);
+          else if (action === 'getBreadcrumb') runner.getBreadcrumb(params.parentId);
+          else if (action === 'createFolder') runner.createFolder(params.folderName, params.parentId);
+          else if (action === 'saveFileInfo') runner.saveFileInfo(params.filename, params.fileId, params.parentId, params.sizeStr);
+          else if (action === 'renameItem') runner.renameItem(params.id, params.newName);
+          else if (action === 'moveItem') runner.moveItem(params.id, params.targetId);
+          else if (action === 'deleteItem') runner.deleteItem(params.id);
+          else if (action === 'getAllFolders') runner.getAllFolders();
+          else if (action === 'syncTelegramFiles') runner.syncTelegramFiles(params.parentId);
+          else if (action === 'downloadChunk') runner.downloadChunk(params.fileId);
+          else reject(new Error('រកមិនឃើញមុខងារ: ' + action));
+        });
+      }
+
+      // 2. ប្រសិនបើបើកនៅលើ GitHub Pages / PWA App
+      if (!GAS_API_URL || GAS_API_URL.includes('ដាក់_WEB_APP_URL')) {
+        throw new Error('សូមដាក់ Web App URL របស់អ្នកទៅក្នុង GAS_API_URL ក្នុង index.html ជាមុនសិន!');
       }
       
       const formData = new URLSearchParams();
@@ -371,18 +531,16 @@
 
       const response = await fetch(GAS_API_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData
       });
       
       const result = await response.json();
-      if (result.error) throw new Error(result.error);
+      if (result && result.error) throw new Error(result.error);
       return result;
     }
 
-    // ================== លំហូរការងារទូទៅ ==================
+    // ================== ការគ្រប់គ្រងផ្ទាំង UI ==================
     function openModal(id) { closeAllMenus(); document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); if (id === 'previewModal') stopMedia(); }
 
@@ -393,7 +551,7 @@
         const el = document.getElementById('theme-card-' + t);
         if (el) el.classList.toggle('active', t === themeName);
       });
-      if (notify) { closeModal('themeModal'); showToast('🎨 Theme ត្រូវបានផ្លាស់ប្ដូរ!', false); }
+      if (notify) { closeModal('themeModal'); showToast('🎨 បានប្ដូរទៅជា Theme: ' + themeName.toUpperCase(), false); }
     }
 
     function toggleSidebar(open) {
@@ -430,87 +588,60 @@
 
     function loadFiles() {
       showToast('កំពុងផ្ទុកទិន្នន័យ...', true);
-      
-      // ទាញយកឯកសារ
       apiCall('getFilesList', { parentId: currentParentId })
         .then(res => {
-          allCurrentFiles = res.files || [];
-          if (res.totalSizeStr) document.getElementById('storageUsed').innerText = res.totalSizeStr;
+          allCurrentFiles = (res && res.files) ? res.files : (Array.isArray(res) ? res : []);
+          if (res && res.totalSizeStr) document.getElementById('storageUsed').innerText = res.totalSizeStr;
           displayFiles(allCurrentFiles);
         })
         .catch(err => showToast('❌ ' + err.message, false));
 
-      // ទាញយក Breadcrumb
       apiCall('getBreadcrumb', { parentId: currentParentId })
         .then(renderBreadcrumb)
         .catch(console.error);
     }
 
-   // ================= 1. មុខងារសម្គាល់រូបរាង និងពណ៌គ្រប់ File Extensions =================
+    // ================= សម្គាល់រូបរាង និងពណ៌គ្រប់ File Extensions =================
     function getFileVisual(filename, isFolder) {
       if (isFolder) return { icon: 'bi-folder-fill', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', badge: '' };
       
       const parts = String(filename || '').split('.');
       const ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
       
-      // PDF
       if (ext === 'pdf') return { icon: 'bi-file-earmark-pdf-fill', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', badge: 'PDF' };
-      
-      // រូបភាព (Images)
       if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif', 'heic', 'tiff'].includes(ext)) {
         return { icon: 'bi-file-earmark-image-fill', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // Word / Text Documents
       if (['doc', 'docx', 'rtf', 'odt'].includes(ext)) {
         return { icon: 'bi-file-earmark-word-fill', color: '#2563eb', bg: 'rgba(37, 99, 235, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // Excel / Spreadsheets
       if (['xls', 'xlsx', 'csv', 'ods'].includes(ext)) {
         return { icon: 'bi-file-earmark-excel-fill', color: '#16a34a', bg: 'rgba(22, 163, 74, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // PowerPoint / Presentations
       if (['ppt', 'pptx', 'odp'].includes(ext)) {
         return { icon: 'bi-file-earmark-slides-fill', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // ឯកសារអត្ថបទធម្មតា (Plain Text / Markdown)
       if (['txt', 'md', 'log', 'ini'].includes(ext)) {
         return { icon: 'bi-file-earmark-text-fill', color: '#0284c7', bg: 'rgba(2, 132, 199, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // ឯកសារកូដ (Code / Scripts)
       if (['html', 'htm', 'css', 'js', 'gs', 'json', 'xml', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'sh', 'bat', 'yaml', 'yml'].includes(ext)) {
         return { icon: 'bi-file-earmark-code-fill', color: '#6366f1', bg: 'rgba(99, 102, 241, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // វីដេអូ (Videos)
       if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp'].includes(ext)) {
         return { icon: 'bi-file-earmark-play-fill', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // សំឡេង (Audio)
       if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus', 'wma'].includes(ext)) {
         return { icon: 'bi-file-earmark-music-fill', color: '#0ea5e9', bg: 'rgba(14, 165, 233, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // បណ្ណសារ (Archives)
       if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
         return { icon: 'bi-file-earmark-zip-fill', color: '#d97706', bg: 'rgba(217, 119, 6, 0.15)', badge: ext.toUpperCase() };
       }
-      
-      // កម្មវិធី / ដំឡើង (Apps / Executables)
       if (['apk', 'exe', 'msi', 'dmg', 'iso', 'deb'].includes(ext)) {
         return { icon: 'bi-file-earmark-binary-fill', color: '#e11d48', bg: 'rgba(225, 29, 72, 0.15)', badge: ext.toUpperCase() };
       }
-
-      // Design & Fonts
       if (['psd', 'ai', 'eps', 'fig', 'ttf', 'otf', 'woff', 'woff2'].includes(ext)) {
         return { icon: 'bi-file-earmark-font-fill', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)', badge: ext.toUpperCase() };
       }
-      
       return { icon: 'bi-file-earmark-fill', color: '#64748b', bg: 'rgba(100, 116, 139, 0.15)', badge: ext ? ext.substring(0, 4).toUpperCase() : 'FILE' };
     }
 
@@ -691,53 +822,123 @@
     }
 
     function downloadByIndex(idx) {
-      closeAllMenus(); const item = renderedFiles[idx]; if (!item || !item.fileId) return; directDownload(item.fileId);
+      closeAllMenus();
+      const item = renderedFiles[idx];
+      if (!item || !item.fileId) return;
+      directDownload(item.fileId, item.name);
     }
 
+    // ================= 1. មុខងារ Upload ឯកសារ (គាំទ្រទំហំធំជាង 20MB ដោយបំបែកជាដុំ 5MB) =================
     async function handleFiles(fileList) {
       if (!fileList || fileList.length === 0 || isUploading) return;
       if (!tgConfig || !tgConfig.token || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
-         alert('❌ សូមកុំភ្លេចដាក់ BOT_TOKEN និង CHAT_ID នៅក្នុងកូដ Code.gs ជាមុនសិន!'); return;
+         alert('❌ សូមកុំភ្លេចដាក់ BOT_TOKEN និង CHAT_ID នៅក្នុងកូដ Code.gs ជាមុនសិន!');
+         return;
       }
       
-      isUploading = true; const files = Array.from(fileList); let completed = 0; let hasError = false; let lastErrorMsg = '';
+      isUploading = true;
+      const files = Array.from(fileList);
+      const CHUNK_SIZE = 5 * 1024 * 1024; // កាត់ជាដុំ 5MB ដើម្បីឱ្យ Google Apps Script ទាញយកវិញបានលឿនមិនគាំង
+      const SINGLE_LIMIT = 18 * 1024 * 1024; // ឯកសារក្រោម 18MB មិនបាច់កាត់ទេ
+      let hasError = false;
+      let lastErrorMsg = '';
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file.size > 20 * 1024 * 1024) { showToast(`❌ "${file.name}" ធំជាង 20MB`, false); completed++; continue; }
-        
-        showToast(`កំពុង Upload ${completed + 1}/${files.length}...`, true);
-        const formData = new FormData(); formData.append('chat_id', tgConfig.chatId); formData.append('document', file);
 
         try {
-          const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, { method: 'POST', body: formData });
-          const res = await response.json();
-          if (res.ok) {
-            const doc = res.result.document || res.result.video || res.result.audio || (res.result.photo ? res.result.photo[res.result.photo.length - 1] : null);
-            if (doc && doc.file_id) {
-              await apiCall('saveFileInfo', { filename: file.name, fileId: doc.file_id, parentId: currentParentId, sizeStr: formatSize(file.size) });
+          // ករណីទី ១៖ ឯកសារតូចជាង ឬស្មើ 18MB
+          if (file.size <= SINGLE_LIMIT) {
+            showToast(`កំពុង Upload (${i + 1}/${files.length}): ${file.name}...`, true);
+            const formData = new FormData();
+            formData.append('chat_id', tgConfig.chatId);
+            formData.append('document', file);
+
+            const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, {
+              method: 'POST',
+              body: formData
+            });
+            const res = await response.json();
+
+            if (res.ok) {
+              const doc = res.result.document || res.result.video || res.result.audio || (res.result.photo ? res.result.photo[res.result.photo.length - 1] : null);
+              if (doc && doc.file_id) {
+                await apiCall('saveFileInfo', {
+                  filename: file.name,
+                  fileId: doc.file_id,
+                  parentId: currentParentId,
+                  sizeStr: formatSize(file.size)
+                });
+              }
+            } else {
+              throw new Error(res.description || 'Upload បរាជ័យ');
             }
-          } else { hasError = true; lastErrorMsg = res.description; }
-        } catch (e) { hasError = true; lastErrorMsg = e.message; }
-        completed++;
+          } 
+          // ករណីទី ២៖ ឯកសារធំជាង 18MB (កាត់ជាដុំ 5MB ដោយស្វ័យប្រវត្តិ)
+          else {
+            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+            const chunkFileIds = [];
+
+            for (let c = 0; c < totalChunks; c++) {
+              const start = c * CHUNK_SIZE;
+              const end = Math.min(start + CHUNK_SIZE, file.size);
+              const chunkBlob = new Blob([file.slice(start, end)], { type: 'application/octet-stream' });
+              
+              const percent = Math.round(((c + 1) / totalChunks) * 100);
+              showToast(`កំពុង Upload "${file.name}" ផ្នែកទី ${c + 1}/${totalChunks} (${percent}%)...`, true);
+
+              const formData = new FormData();
+              formData.append('chat_id', tgConfig.chatId);
+              formData.append('document', chunkBlob, `${file.name}.sotip_part${c + 1}.bin`);
+
+              const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, {
+                method: 'POST',
+                body: formData
+              });
+              const res = await response.json();
+
+              const doc = res.ok ? (res.result.document || res.result.video || res.result.audio) : null;
+              if (doc && doc.file_id) {
+                chunkFileIds.push(doc.file_id);
+              } else {
+                throw new Error(res.description || `បរាជ័យត្រង់ផ្នែកទី ${c + 1}`);
+              }
+            }
+
+            const combinedFileId = 'CHUNKED:' + chunkFileIds.join(',');
+            await apiCall('saveFileInfo', {
+              filename: file.name,
+              fileId: combinedFileId,
+              parentId: currentParentId,
+              sizeStr: formatSize(file.size)
+            });
+          }
+        } catch (e) {
+          hasError = true;
+          lastErrorMsg = e.message;
+        }
       }
 
       isUploading = false;
-      if (hasError) { alert('⚠️ បរាជ័យក្នុងការ Upload:\n' + lastErrorMsg); showToast('⚠️ បរាជ័យ', false); } 
-      else { showToast('✅ Upload រួចរាល់!', false); }
+      if (hasError) {
+         alert('⚠️ បរាជ័យក្នុងការ Upload:\n' + lastErrorMsg);
+         showToast('⚠️ បរាជ័យ', false);
+      } else {
+         showToast('✅ Upload រួចរាល់!', false);
+      }
       
-      document.getElementById('fileInput').value = ''; document.getElementById('folderUploadInput').value = ''; loadFiles();
+      document.getElementById('fileInput').value = '';
+      document.getElementById('folderUploadInput').value = '';
+      loadFiles();
     }
 
-    // ================= 2. មុខងារ Preview ថ្មី (គាំទ្រ .txt, កូដ, Office, PDF, រូបភាព, វីដេអូ...) =================
-    let currentPreviewText = ''; // សម្រាប់រក្សាទុកអត្ថបទពេលចុចប៊ូតុង Copy
-
+    // ================= 2. មុខងារ Preview គ្រប់ប្រភេទឯកសារ =================
     async function openPreview(fileId, fileName) {
       const vis = getFileVisual(fileName, false);
       const parts = String(fileName || '').split('.');
       const ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
 
-      // ករណីទី ១៖ ឯកសារធំលើស 20MB (CHUNKED)
+      // ករណីទី ១៖ ឯកសារធំលើស 20MB ដែលបានបំបែកជាដុំ (CHUNKED)
       if (String(fileId).startsWith('CHUNKED:')) {
         const totalParts = String(fileId).replace('CHUNKED:', '').split(',').length;
         document.getElementById('previewTitle').innerHTML = `<i class="bi ${vis.icon} me-2" style="color:${vis.color}"></i>${escapeHtml(fileName)}`;
@@ -756,16 +957,20 @@
             <i class="bi ${vis.icon}" style="font-size: 4.5rem; color:${vis.color};"></i>
             <h6 class="mt-3 fw-bold">${escapeHtml(fileName)}</h6>
             <span class="badge bg-primary mb-2">ឯកសារទំហំធំ (${totalParts} ផ្នែក)</span>
-            <p class="text-muted small mb-3">ឯកសារដែលមានទំហំធំជាង 20MB មិនអាចបើកមើលផ្ទាល់បានទេ។<br>សូមចុចប៊ូតុងខាងក្រោមដើម្បីទាញយក និងផ្គុំឯកសារដោយស្វ័យប្រវត្តិ។</p>
-            <button type="button" class="btn btn-primary px-4 fw-bold" onclick="closeModal('previewModal'); directDownload('${fileId}', '${escapeHtml(fileName)}')">
+            <p class="text-muted small mb-3">ឯកសារនេះមានទំហំធំជាង 20MB ត្រូវបានរក្សាទុកជា ${totalParts} ផ្នែក។<br>សូមចុចប៊ូតុងខាងក្រោមដើម្បីទាញយក និងផ្គុំជាឯកសារដើមដោយស្វ័យប្រវត្តិ។</p>
+            <button type="button" id="btnAssembleNow" class="btn btn-primary px-4 fw-bold">
               <i class="bi bi-download me-2"></i>ទាញយកឯកសារពេញលេញ
             </button>
           </div>`;
         openModal('previewModal');
+        document.getElementById('btnAssembleNow').onclick = function() {
+          closeModal('previewModal');
+          directDownload(fileId, fileName);
+        };
         return;
       }
 
-      // ករណីទី ២៖ ឯកសារតូចជាង 20MB
+      // ករណីទី ២៖ ឯកសារធម្មតា
       showToast('កំពុងរៀបចំការមើលជាមុន...', true);
       try {
         const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/getFile?file_id=${fileId}`);
@@ -773,7 +978,11 @@
         hideToast();
 
         if (!res.ok) {
-          showToast('❌ មិនអាចបើកឯកសារបានទេ', false);
+          if (res.description && res.description.toLowerCase().includes('too big')) {
+            alert('⚠️ ឯកសារ "' + fileName + '" មានទំហំធំជាង 20MB ដែលត្រូវបានបញ្ជូនពីមុន ឬ Sync ពី Telegram ផ្ទាល់ (Telegram បិទមិនឱ្យ Bot ទាញយកឯកសារទោលលើស 20MB ទេ)។\n\n👉 ដំណោះស្រាយ៖ សូមលុបឯកសារនេះ រួចចុចប៊ូតុង "Upload ឯកសារ" នៅក្នុងវេបសាយនេះដើម្បី Upload វាឡើងវិញ នោះប្រព័ន្ធនឹងបំបែកវាដោយស្វ័យប្រវត្តិ!');
+          } else {
+            showToast('❌ មិនអាចបើកឯកសារបានទេ: ' + (res.description || ''), false);
+          }
           return;
         }
 
@@ -791,7 +1000,7 @@
 
         const textExtensions = ['txt', 'md', 'csv', 'json', 'xml', 'html', 'htm', 'css', 'js', 'gs', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'log', 'ini', 'yaml', 'yml', 'sh', 'bat'];
 
-        // ២.១ ប្រសិនបើជាឯកសារអត្ថបទ ឬកូដ (.txt, .gs, .html, .js, .csv...) -> ទាញអានអក្សរផ្ទាល់តាមរយៈ GAS
+        // ២.១ ប្រសិនបើជាឯកសារអត្ថបទ ឬកូដ (.txt, .gs, .html, .js...)
         if (textExtensions.includes(ext)) {
           try {
             const chunkRes = await apiCall('downloadChunk', { fileId: fileId });
@@ -801,7 +1010,6 @@
               for (let i = 0; i < binaryStr.length; i++) {
                 bytes[i] = binaryStr.charCodeAt(i);
               }
-              // បំប្លែងជាអក្សរ UTF-8 (គាំទ្រអក្សរខ្មែរ និងនិមិត្តសញ្ញាទាំងអស់)
               currentPreviewText = new TextDecoder('utf-8').decode(bytes);
               
               pBody.innerHTML = `
@@ -815,7 +1023,7 @@
                   <pre class="m-0 p-3" style="flex:1; overflow:auto; max-height:65vh; white-space:pre-wrap; word-break:break-word; font-family:'Consolas', 'Battambang', monospace !important; font-size:0.88rem; line-height:1.6; color:#e2e8f0; text-align:left;">${escapeHtml(currentPreviewText)}</pre>
                 </div>`;
             } else {
-              throw new Error('មិនអាចអានអត្ថបទបានទេ');
+              throw new Error(chunkRes.error || 'មិនអាចអានអត្ថបទបានទេ');
             }
           } catch (err) {
             pBody.innerHTML = `<div class="p-5 text-center text-dark"><p class="text-danger mb-3">❌ មិនអាចបើកអានអត្ថបទផ្ទាល់បានទេ (${escapeHtml(err.message)})</p><a href="${fileUrl}" target="_blank" class="btn btn-primary px-4"><i class="bi bi-download me-2"></i>ទាញយកឯកសារនេះ</a></div>`;
@@ -825,20 +1033,13 @@
 
         // ២.២ ប្រភេទឯកសារផ្សេងៗទៀត
         setTimeout(() => {
-          // រូបភាព
           if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)) {
             pBody.innerHTML = `<img src="${fileUrl}" style="max-width:100%; max-height:70vh; object-fit:contain; padding:12px;">`;
-          } 
-          // វីដេអូ
-          else if (['mp4', 'webm', 'mov', 'ogg', 'm4v', 'mkv', '3gp'].includes(ext)) {
+          } else if (['mp4', 'webm', 'mov', 'ogg', 'm4v', 'mkv', '3gp'].includes(ext)) {
             pBody.innerHTML = `<video src="${fileUrl}" controls autoplay playsinline style="max-width:100%; max-height:70vh; background:#000; width:100%;"></video>`;
-          } 
-          // សំឡេង
-          else if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus'].includes(ext)) {
+          } else if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus'].includes(ext)) {
             pBody.innerHTML = `<div class="p-5 text-dark text-center"><i class="bi bi-music-note-beamed text-primary" style="font-size: 4rem;"></i><p class="mt-2 fw-semibold">${escapeHtml(fileName)}</p><audio src="${fileUrl}" controls autoplay class="mt-2"></audio></div>`;
-          } 
-          // ឯកសារ Office (Word, Excel, PowerPoint) -> ប្រើ Microsoft Viewer ជាចម្បង និងអាចប្ដូរទៅ Google Viewer បាន
-          else if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
+          } else if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
             const msViewer = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
             const gViewer = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
             pBody.innerHTML = `
@@ -850,14 +1051,10 @@
                 </div>
                 <iframe id="docIframe" src="${msViewer}" style="width:100%; height:66vh; border:none;"></iframe>
               </div>`;
-          } 
-          // ឯកសារ PDF
-          else if (ext === 'pdf') {
+          } else if (ext === 'pdf') {
             const gViewer = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
             pBody.innerHTML = `<iframe src="${gViewer}" style="width:100%; height:70vh; border:none;"></iframe>`;
-          } 
-          // ឯកសារផ្សេងៗដែលមិនអាច Preview លើ Browser (ដូចជា .zip, .rar, .apk, .exe...)
-          else {
+          } else {
             pBody.innerHTML = `
               <div class="p-5 text-center text-dark">
                 <i class="bi ${vis.icon}" style="font-size: 4.5rem; color:${vis.color};"></i>
@@ -873,7 +1070,6 @@
       }
     }
 
-    // មុខងារជំនួយសម្រាប់ចុច Copy អត្ថបទក្នុងផ្ទាំង Preview (.txt / កូដ)
     function copyPreviewText(btnElement) {
       if (!currentPreviewText) return;
       navigator.clipboard.writeText(currentPreviewText).then(() => {
@@ -885,12 +1081,66 @@
       });
     }
 
-    async function directDownload(fileId) {
+    // ================= 3. មុខងារ Download និងផ្គុំឯកសារធំៗបញ្ចូលគ្នាវិញ =================
+    async function directDownload(fileId, fileName = 'downloaded_file') {
+      // ករណីឯកសារធំជាង 20MB (CHUNKED)
+      if (String(fileId).startsWith('CHUNKED:')) {
+        const chunkIds = String(fileId).replace('CHUNKED:', '').split(',');
+        const byteArrays = [];
+
+        try {
+          for (let i = 0; i < chunkIds.length; i++) {
+            const percent = Math.round(((i + 1) / chunkIds.length) * 100);
+            showToast(`កំពុងទាញយក និងផ្គុំឯកសារ ${i + 1}/${chunkIds.length} (${percent}%)...`, true);
+            
+            const res = await apiCall('downloadChunk', { fileId: chunkIds[i] });
+            if (!res || !res.ok || !res.base64) {
+              throw new Error((res && res.error) ? res.error : `បរាជ័យក្នុងការទាញផ្នែកទី ${i + 1}`);
+            }
+
+            const byteCharacters = atob(res.base64);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+            for (let j = 0; j < byteCharacters.length; j++) {
+              byteNumbers[j] = byteCharacters.charCodeAt(j);
+            }
+            byteArrays.push(byteNumbers);
+          }
+
+          showToast('កំពុងរៀបចំឯកសារដើម...', true);
+          const finalBlob = new Blob(byteArrays, { type: 'application/octet-stream' });
+          const downloadUrl = URL.createObjectURL(finalBlob);
+          
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(downloadUrl), 5000);
+
+          showToast('✅ ទាញយករួចរាល់!', false);
+        } catch (err) {
+          alert('❌ បរាជ័យក្នុងការទាញយកឯកសារធំ៖\n' + err.message);
+          showToast('❌ បរាជ័យ: ' + err.message, false);
+        }
+        return;
+      }
+
+      // ករណីឯកសារធម្មតា (តូចជាង 20MB)
       showToast('កំពុងទាញយក...', true);
       try {
         const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/getFile?file_id=${fileId}`);
-        const res = await response.json(); hideToast();
-        if (res.ok) window.open(`https://api.telegram.org/file/bot${tgConfig.token}/${res.result.file_path}`, '_blank');
+        const res = await response.json();
+        hideToast();
+        if (res.ok) {
+          window.open(`https://api.telegram.org/file/bot${tgConfig.token}/${res.result.file_path}`, '_blank');
+        } else {
+          if (res.description && res.description.toLowerCase().includes('too big')) {
+            alert('⚠️ ឯកសារនេះមានទំហំធំជាង 20MB ដែលមិនទាន់បានបំបែកជាដុំ។ សូមលុបវាចោល រួច Upload ម្ដងទៀតតាមរយៈប៊ូតុង "Upload ឯកសារ" ក្នុងកម្មវិធីនេះ!');
+          } else {
+            showToast('❌ ' + (res.description || 'មិនអាចទាញយកបានទេ'), false);
+          }
+        }
       } catch (e) { hideToast(); }
     }
 
@@ -902,7 +1152,9 @@
       if (!spin) setTimeout(hideToast, 3500);
     }
     function hideToast() { document.getElementById('toastStatus').classList.remove('show'); }
-    function formatSize(bytes) { return bytes < 1024 ? bytes + ' B' : bytes < 1048576 ? (bytes / 1024).toFixed(1) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB'; }
+    function formatSize(bytes) {
+      return bytes < 1024 ? bytes + ' B' : bytes < 1048576 ? (bytes / 1024).toFixed(1) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB';
+    }
   </script>
 </body>
 </html>

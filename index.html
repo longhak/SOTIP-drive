@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SOTIP Drive</title>
 
-  <!-- កូដសម្រាប់ធ្វើជា App (PWA) លើទូរស័ព្ទ និងកុំព្យូទ័រ -->
+  <!-- កូដសម្រាប់ធ្វើជា App (PWA) -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#132e53">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +20,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    /* ================= 1. ការកំណត់ពណ៌តាម Themes ទាំង ៥ ================= */
     :root, body[data-theme="basic"] {
       --sidebar-width: 265px; --bg-body: #f4f6f9; --bg-panel: #ffffff; --bg-sidebar: #132e53; --bg-topbar: #ffffff;
       --text-sidebar: #ffffff; --text-topbar: #0f172a; --primary: #1e56a0; --primary-hover: #163e75; --accent-gold: #eab308;
@@ -64,7 +63,7 @@
     body { height: 100vh; height: 100dvh; display: flex; overflow: hidden; transition: background-color 0.25s, color 0.25s; }
     body[data-theme="linear"] .main-content { background: radial-gradient(circle at 85% 15%, rgba(29,78,216,0.22) 0%, transparent 45%), radial-gradient(circle at 15% 85%, rgba(14,165,233,0.15) 0%, transparent 45%); }
 
-    /* ================= Sidebar ================= */
+    /* Sidebar */
     .sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); color: var(--text-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 22px 16px; z-index: 1050; transition: transform 0.3s ease; flex-shrink: 0; }
     .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1040; backdrop-filter: blur(2px); }
     .sidebar-overlay.open { display: block; }
@@ -87,9 +86,8 @@
     .progress-bar { background-color: var(--accent-gold); width: 25%; border-radius: 4px; }
     .storage-desc { font-size: 0.7rem; color: rgba(255,255,255,0.75); line-height: 1.4; margin: 0; }
 
-    /* ================= Main Content ================= */
+    /* Main Content */
     .main-content { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; position: relative; width: 100%; }
-    
     .topbar { height: 68px; background: var(--bg-topbar); color: var(--text-topbar); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; gap: 12px; flex-shrink: 0; }
     .mobile-menu-btn { display: none; width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-panel); color: var(--text-main); font-size: 1.3rem; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
     
@@ -102,11 +100,20 @@
     .view-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background-color: var(--bg-panel); border-radius: 10px; color: var(--text-main); cursor: pointer; transition: all 0.2s; flex-shrink: 0;}
     .view-btn.active { background-color: var(--primary); color: #fff; border-color: var(--primary); }
 
-    /* ================= Action Bar ================= */
+    /* Action Bar & File Input Overlay (ធានាថាចុចติด ១០០% គ្រប់ឧបករណ៍) */
     .action-bar { padding: 16px 24px 12px; display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
-    .btn-action { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; user-select: none; }
+    .btn-action { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; user-select: none; }
     .btn-outline { background-color: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); box-shadow: var(--card-shadow); }
     .btn-outline:hover { background-color: var(--hover-bg); }
+    .btn-action input[type="file"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 5;
+    }
 
     /* Content Area */
     .content-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 24px 40px; }
@@ -115,7 +122,7 @@
     .breadcrumb-title a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
     .breadcrumb-title a:hover { color: var(--primary); }
 
-    /* ================= File Grid & List ================= */
+    /* File Grid & List */
     .file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
     .file-grid.list-view { display: flex; flex-direction: column; gap: 8px; }
     
@@ -150,7 +157,7 @@
     .card-meta { font-size: 0.72rem; color: var(--text-muted); margin-top: auto; }
     .card-menu { position: absolute; top: 6px; right: 6px; z-index: 20;}
 
-    /* ម៉ឺនុយត្រេបី (Dropdown) */
+    /* Dropdown Menu */
     .btn-dots { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
     .btn-dots:hover { background-color: var(--hover-bg); color: var(--text-main); }
     .custom-menu { display: none; position: absolute; top: 34px; right: 0; width: 195px; background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); padding: 6px; z-index: 1000; text-align: left; }
@@ -168,10 +175,10 @@
     .file-grid.list-view .card-meta { margin-top: 0; }
     .file-grid.list-view .card-menu { position: static; }
 
-    /* ================= Custom Modals ================= */
+    /* Modals */
     .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2500; display: none; align-items: center; justify-content: center; padding: 16px; }
     .custom-modal-overlay.active { display: flex; }
-    .custom-modal-box { background-color: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 450px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: modalFadeIn 0.2s ease; }
+    .custom-modal-box { background-color: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 460px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: modalFadeIn 0.2s ease; }
     .custom-modal-box.modal-xl-box { max-width: 960px; }
     @keyframes modalFadeIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .cm-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
@@ -179,10 +186,11 @@
     .cm-close { background: none; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; line-height: 1; }
     .cm-body { padding: 20px; }
     .cm-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
-    .cm-input { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border); background-color: var(--bg-body); color: var(--text-main); font-size: 0.95rem; font-family: inherit; outline: none; }
+    .cm-input { width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border); background-color: var(--bg-body); color: var(--text-main); font-size: 0.92rem; font-family: inherit; outline: none; }
     .cm-input:focus { border-color: var(--primary); }
+    .cm-label { font-size: 0.82rem; font-weight: 600; margin-bottom: 6px; display: block; color: var(--text-main); }
 
-    /* ================= ផ្ទាំង Theme Selector ================= */
+    /* Theme Selector */
     .theme-options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 16px; }
     .theme-card { border: 2px solid var(--border); border-radius: 14px; padding: 16px 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg-panel); }
     .theme-card:hover { border-color: var(--primary); transform: translateY(-2px); }
@@ -203,7 +211,6 @@
     .toast-status.show { transform: translateY(0); opacity: 1; }
     #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 75vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; }
 
-    /* ================= Mobile Responsive ================= */
     @media (max-width: 768px) {
       .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25); }
       .sidebar.open { transform: translateX(0); }
@@ -234,7 +241,7 @@
         <div class="logo-icon"><i class="bi bi-cloud-check-fill"></i></div>
         <div class="logo-text">
           <h2>SOTIP Drive</h2>
-          <p>ឃ្លាំងឯកសារផ្ទាល់ខ្លួន</p>
+          <p>v3.0 • គាំទ្រលើស 20MB</p>
         </div>
       </div>
       <button type="button" class="btn-close-sidebar" onclick="toggleSidebar(false)"><i class="bi bi-x-lg"></i></button>
@@ -248,10 +255,13 @@
         <i class="bi bi-file-earmark-text"></i> ឯកសារទាំងអស់
       </li>
       <li class="nav-item" onclick="syncFromTelegram(); toggleSidebar(false);">
-        <i class="bi bi-telegram text-primary"></i> Sync ពី Telegram
+        <i class="bi bi-telegram text-info"></i> Sync ពី Telegram
       </li>
       <li class="nav-item" onclick="openModal('themeModal'); toggleSidebar(false);">
         <i class="bi bi-palette-fill" style="color: var(--accent-gold);"></i> ជ្រើសរើស Theme
+      </li>
+      <li class="nav-item" onclick="openSettingsModal(); toggleSidebar(false);">
+        <i class="bi bi-gear-fill text-light"></i> កំណត់ការតភ្ជាប់ (API)
       </li>
     </ul>
 
@@ -263,7 +273,7 @@
       <div class="progress">
         <div class="progress-bar"></div>
       </div>
-      <p class="storage-desc">រក្សាទុកដោយសុវត្ថិភាពក្នុង Telegram Cloud (គាំទ្រឯកសារធំលើស 20MB)</p>
+      <p class="storage-desc">រក្សាទុកក្នុង Telegram Cloud (គាំទ្រឯកសារធំលើស 20MB ដោយស្វ័យប្រវត្តិ)</p>
     </div>
   </aside>
 
@@ -283,6 +293,9 @@
         <input type="text" id="searchInput" placeholder="ស្វែងរកឯកសារ..." oninput="filterFiles()">
       </div>
       <div class="view-toggles">
+        <button type="button" class="view-btn" onclick="openSettingsModal()" title="កំណត់ការតភ្ជាប់ API">
+          <i class="bi bi-gear-fill text-secondary"></i>
+        </button>
         <button type="button" class="view-btn" onclick="openModal('themeModal')" title="ជ្រើសរើស Themes">
           <i class="bi bi-palette-fill" style="color: var(--accent-gold);"></i>
         </button>
@@ -300,15 +313,17 @@
         <i class="bi bi-folder-plus text-warning"></i> Folder ថ្មី
       </button>
 
-      <button type="button" class="btn-action btn-outline" onclick="document.getElementById('fileInput').click()">
+      <!-- ប៊ូតុង Upload ឯកសារ (មាន input ពីលើផ្ទាល់ ចុចติด ១០០%) -->
+      <div class="btn-action btn-outline">
         <i class="bi bi-upload text-primary"></i> Upload ឯកសារ
-      </button>
-      <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFiles(this.files)">
+        <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
+      </div>
 
-      <button type="button" class="btn-action btn-outline" onclick="document.getElementById('folderUploadInput').click()">
+      <!-- ប៊ូតុង Upload Folder -->
+      <div class="btn-action btn-outline">
         <i class="bi bi-folder-symlink text-primary"></i> Upload Folder
-      </button>
-      <input type="file" id="folderUploadInput" webkitdirectory directory multiple style="display: none;" onchange="handleFiles(this.files)">
+        <input type="file" id="folderUploadInput" webkitdirectory directory multiple onchange="handleFiles(this.files)">
+      </div>
 
       <button type="button" class="btn-action btn-outline" onclick="syncFromTelegram()">
         <i class="bi bi-arrow-repeat text-success"></i> Sync
@@ -328,6 +343,37 @@
   <div class="toast-status" id="toastStatus">
     <div class="spinner-border spinner-border-sm" id="toastSpinner"></div>
     <span id="toastText">កំពុងដំណើរការ...</span>
+  </div>
+
+  <!-- Modal 0: កំណត់ការតភ្ជាប់ API & Telegram (Settings) -->
+  <div class="custom-modal-overlay" id="settingsModal">
+    <div class="custom-modal-box">
+      <div class="cm-header">
+        <h5 class="cm-title"><i class="bi bi-gear-fill text-primary"></i> កំណត់ការតភ្ជាប់ប្រព័ន្ធ</h5>
+        <button type="button" class="cm-close" onclick="closeModal('settingsModal')"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="cm-body">
+        <div class="mb-3">
+          <label class="cm-label">1. Google Apps Script Web App URL (/exec)</label>
+          <input type="text" class="cm-input" id="inputGasUrl" placeholder="https://script.google.com/macros/s/.../exec">
+          <small class="text-muted" style="font-size:0.75rem;">ដាក់តែម្ដងគត់ ប្រព័ន្ធនឹងចងចាំទុកក្នុងឧបករណ៍នេះរហូត។</small>
+        </div>
+        <hr>
+        <p class="small text-muted mb-2">ប្រសិនបើក្នុង <code>Code.gs</code> របស់អ្នកបានដាក់ Token ហើយ មិនបាច់បំពេញខាងក្រោមនេះក៏បាន៖</p>
+        <div class="mb-3">
+          <label class="cm-label">2. Telegram Bot Token (ជម្រើសបន្ថែម)</label>
+          <input type="text" class="cm-input" id="inputBotToken" placeholder="ឧ. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ">
+        </div>
+        <div class="mb-1">
+          <label class="cm-label">3. Telegram Chat ID (ជម្រើសបន្ថែម)</label>
+          <input type="text" class="cm-input" id="inputChatId" placeholder="ឧ. -100123456789 ឬ 987654321">
+        </div>
+      </div>
+      <div class="cm-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('settingsModal')">បិទ</button>
+        <button type="button" class="btn btn-primary px-4 fw-bold" onclick="saveSettings()">រក្សាទុក និងភ្ជាប់</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal 1: ជ្រើសរើស Theme -->
@@ -451,16 +497,14 @@
     </div>
   </div>
 
-  <!-- ================= JavaScript ពេញលេញ ================= -->
+  <!-- ================= JavaScript (v3.0) ================= -->
   <script>
-    // ----------------------------------------------------------------------
-    // ចំណុចសំខាន់៖ សូមយក Web App URL ពី Google Apps Script មកដាក់ទីនេះ
-    // ----------------------------------------------------------------------
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw4YhM2A8wyu3k7EJ9sMF7BXPFKhQf9BMxdppmC4tY2D3-GIZQMtUywZwdfpkHKYZU2/execេះ";
+    // អ្នកអាចដាក់ Web App URL ទីនេះ ឬដាក់តាមរយៈប៊ូតុង ⚙️ នៅលើអេក្រង់វេបសាយផ្ទាល់ក៏បាន!
+    const DEFAULT_GAS_URL = "ដាក់_WEB_APP_URL_របស់_អ្នកនៅទីនេះ";
 
     let currentParentId = 'root';
     let isUploading = false;
-    let tgConfig = {};
+    let tgConfig = { token: '', chatId: '' };
     let allCurrentFiles = [];
     let renderedFiles = [];
     let currentPreviewText = '';
@@ -472,6 +516,13 @@
       try { window.localStorage.setItem(key, value); } catch (e) {}
     }
 
+    function getActiveGasUrl() {
+      const savedUrl = safeGetStorage('sotip_gas_url', '').trim();
+      if (savedUrl && savedUrl.startsWith('https://')) return savedUrl;
+      if (DEFAULT_GAS_URL && DEFAULT_GAS_URL.startsWith('https://')) return DEFAULT_GAS_URL.trim();
+      return '';
+    }
+
     function closeAllMenus() {
       document.querySelectorAll('.custom-menu.show').forEach(m => m.classList.remove('show'));
       document.querySelectorAll('.file-card.has-menu-open').forEach(c => c.classList.remove('has-menu-open'));
@@ -481,22 +532,74 @@
       const savedTheme = safeGetStorage('sotip_drive_theme', 'basic');
       selectAppTheme(savedTheme, false);
       setupDragDrop();
-      
-      apiCall('getConfig').then(conf => {
-        tgConfig = conf || {};
-        loadFiles();
-      }).catch(err => {
-        showToast('❌ មិនអាចភ្ជាប់ទៅកាន់ Server ទេ: ' + err.message, false);
-      });
+
+      // ទាញយក Token ដែលធ្លាប់រក្សាទុកក្នុងម៉ាស៊ីនជាមុន (ដើម្បីឱ្យ Upload ដើរភ្លាមមិនបាច់រង់ចាំ)
+      const cachedToken = safeGetStorage('sotip_bot_token', '');
+      const cachedChatId = safeGetStorage('sotip_chat_id', '');
+      if (cachedToken && cachedChatId) {
+        tgConfig = { token: cachedToken, chatId: cachedChatId };
+      }
+
+      initConnection();
 
       document.getElementById('folderName').addEventListener('keydown', e => { if (e.key === 'Enter') createFolder(); });
       document.getElementById('newItemName').addEventListener('keydown', e => { if (e.key === 'Enter') submitRename(); });
       document.addEventListener('click', closeAllMenus);
     });
 
-    // ================== មុខងារតភ្ជាប់ Hybrid (ដើរទាំងលើ GitHub និងលើ Google Apps Script) ==================
+    async function initConnection() {
+      const isInsideGas = (typeof google !== 'undefined' && google.script && google.script.run);
+      const gasUrl = getActiveGasUrl();
+
+      if (!isInsideGas && !gasUrl) {
+        openSettingsModal();
+        showToast('⚠️ សូមបញ្ចូល Web App URL របស់អ្នកជាមុនសិន!', false);
+        return;
+      }
+
+      try {
+        const conf = await apiCall('getConfig');
+        if (conf && conf.token && !String(conf.token).includes('ដាក់_BOT_TOKEN')) {
+          tgConfig.token = conf.token.trim();
+          tgConfig.chatId = String(conf.chatId || '').trim();
+          safeSetStorage('sotip_bot_token', tgConfig.token);
+          safeSetStorage('sotip_chat_id', tgConfig.chatId);
+        }
+        loadFiles();
+      } catch (err) {
+        showToast('❌ មិនអាចភ្ជាប់ទៅ Server: ' + err.message, false);
+      }
+    }
+
+    function openSettingsModal() {
+      document.getElementById('inputGasUrl').value = getActiveGasUrl();
+      document.getElementById('inputBotToken').value = safeGetStorage('sotip_bot_token', tgConfig.token || '');
+      document.getElementById('inputChatId').value = safeGetStorage('sotip_chat_id', tgConfig.chatId || '');
+      openModal('settingsModal');
+    }
+
+    function saveSettings() {
+      const url = document.getElementById('inputGasUrl').value.trim();
+      const token = document.getElementById('inputBotToken').value.trim();
+      const chatId = document.getElementById('inputChatId').value.trim();
+
+      if (url) safeSetStorage('sotip_gas_url', url);
+      if (token) {
+        safeSetStorage('sotip_bot_token', token);
+        tgConfig.token = token;
+      }
+      if (chatId) {
+        safeSetStorage('sotip_chat_id', chatId);
+        tgConfig.chatId = chatId;
+      }
+
+      closeModal('settingsModal');
+      showToast('✅ បានរក្សាទុកការកំណត់ កំពុងភ្ជាប់...', true);
+      initConnection();
+    }
+
+    // ================== មុខងារតភ្ជាប់ Hybrid (GitHub & GAS) ==================
     async function apiCall(action, params = {}) {
-      // 1. ប្រសិនបើបើកផ្ទាល់នៅលើ Google Apps Script
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         return new Promise((resolve, reject) => {
           const runner = google.script.run
@@ -518,9 +621,10 @@
         });
       }
 
-      // 2. ប្រសិនបើបើកនៅលើ GitHub Pages / PWA App
-      if (!GAS_API_URL || GAS_API_URL.includes('ដាក់_WEB_APP_URL')) {
-        throw new Error('សូមដាក់ Web App URL របស់អ្នកទៅក្នុង GAS_API_URL ក្នុង index.html ជាមុនសិន!');
+      const gasUrl = getActiveGasUrl();
+      if (!gasUrl) {
+        openSettingsModal();
+        throw new Error('សូមដាក់ Google Apps Script Web App URL ជាមុនសិន!');
       }
       
       const formData = new URLSearchParams();
@@ -529,7 +633,7 @@
         formData.append(key, params[key]);
       }
 
-      const response = await fetch(GAS_API_URL, {
+      const response = await fetch(gasUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData
@@ -601,47 +705,23 @@
         .catch(console.error);
     }
 
-    // ================= សម្គាល់រូបរាង និងពណ៌គ្រប់ File Extensions =================
     function getFileVisual(filename, isFolder) {
       if (isFolder) return { icon: 'bi-folder-fill', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.15)', badge: '' };
-      
       const parts = String(filename || '').split('.');
       const ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
       
       if (ext === 'pdf') return { icon: 'bi-file-earmark-pdf-fill', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.15)', badge: 'PDF' };
-      if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif', 'heic', 'tiff'].includes(ext)) {
-        return { icon: 'bi-file-earmark-image-fill', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['doc', 'docx', 'rtf', 'odt'].includes(ext)) {
-        return { icon: 'bi-file-earmark-word-fill', color: '#2563eb', bg: 'rgba(37, 99, 235, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['xls', 'xlsx', 'csv', 'ods'].includes(ext)) {
-        return { icon: 'bi-file-earmark-excel-fill', color: '#16a34a', bg: 'rgba(22, 163, 74, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['ppt', 'pptx', 'odp'].includes(ext)) {
-        return { icon: 'bi-file-earmark-slides-fill', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['txt', 'md', 'log', 'ini'].includes(ext)) {
-        return { icon: 'bi-file-earmark-text-fill', color: '#0284c7', bg: 'rgba(2, 132, 199, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['html', 'htm', 'css', 'js', 'gs', 'json', 'xml', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'sh', 'bat', 'yaml', 'yml'].includes(ext)) {
-        return { icon: 'bi-file-earmark-code-fill', color: '#6366f1', bg: 'rgba(99, 102, 241, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp'].includes(ext)) {
-        return { icon: 'bi-file-earmark-play-fill', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus', 'wma'].includes(ext)) {
-        return { icon: 'bi-file-earmark-music-fill', color: '#0ea5e9', bg: 'rgba(14, 165, 233, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) {
-        return { icon: 'bi-file-earmark-zip-fill', color: '#d97706', bg: 'rgba(217, 119, 6, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['apk', 'exe', 'msi', 'dmg', 'iso', 'deb'].includes(ext)) {
-        return { icon: 'bi-file-earmark-binary-fill', color: '#e11d48', bg: 'rgba(225, 29, 72, 0.15)', badge: ext.toUpperCase() };
-      }
-      if (['psd', 'ai', 'eps', 'fig', 'ttf', 'otf', 'woff', 'woff2'].includes(ext)) {
-        return { icon: 'bi-file-earmark-font-fill', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)', badge: ext.toUpperCase() };
-      }
+      if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif', 'heic', 'tiff'].includes(ext)) return { icon: 'bi-file-earmark-image-fill', color: '#10b981', bg: 'rgba(16, 185, 129, 0.15)', badge: ext.toUpperCase() };
+      if (['doc', 'docx', 'rtf', 'odt'].includes(ext)) return { icon: 'bi-file-earmark-word-fill', color: '#2563eb', bg: 'rgba(37, 99, 235, 0.15)', badge: ext.toUpperCase() };
+      if (['xls', 'xlsx', 'csv', 'ods'].includes(ext)) return { icon: 'bi-file-earmark-excel-fill', color: '#16a34a', bg: 'rgba(22, 163, 74, 0.15)', badge: ext.toUpperCase() };
+      if (['ppt', 'pptx', 'odp'].includes(ext)) return { icon: 'bi-file-earmark-slides-fill', color: '#ea580c', bg: 'rgba(234, 88, 12, 0.15)', badge: ext.toUpperCase() };
+      if (['txt', 'md', 'log', 'ini'].includes(ext)) return { icon: 'bi-file-earmark-text-fill', color: '#0284c7', bg: 'rgba(2, 132, 199, 0.15)', badge: ext.toUpperCase() };
+      if (['html', 'htm', 'css', 'js', 'gs', 'json', 'xml', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'sh', 'bat', 'yaml', 'yml'].includes(ext)) return { icon: 'bi-file-earmark-code-fill', color: '#6366f1', bg: 'rgba(99, 102, 241, 0.15)', badge: ext.toUpperCase() };
+      if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'wmv', 'm4v', '3gp'].includes(ext)) return { icon: 'bi-file-earmark-play-fill', color: '#a855f7', bg: 'rgba(168, 85, 247, 0.15)', badge: ext.toUpperCase() };
+      if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus', 'wma'].includes(ext)) return { icon: 'bi-file-earmark-music-fill', color: '#0ea5e9', bg: 'rgba(14, 165, 233, 0.15)', badge: ext.toUpperCase() };
+      if (['zip', 'rar', '7z', 'tar', 'gz', 'bz2'].includes(ext)) return { icon: 'bi-file-earmark-zip-fill', color: '#d97706', bg: 'rgba(217, 119, 6, 0.15)', badge: ext.toUpperCase() };
+      if (['apk', 'exe', 'msi', 'dmg', 'iso', 'deb'].includes(ext)) return { icon: 'bi-file-earmark-binary-fill', color: '#e11d48', bg: 'rgba(225, 29, 72, 0.15)', badge: ext.toUpperCase() };
+      if (['psd', 'ai', 'eps', 'fig', 'ttf', 'otf', 'woff', 'woff2'].includes(ext)) return { icon: 'bi-file-earmark-font-fill', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)', badge: ext.toUpperCase() };
       return { icon: 'bi-file-earmark-fill', color: '#64748b', bg: 'rgba(100, 116, 139, 0.15)', badge: ext ? ext.substring(0, 4).toUpperCase() : 'FILE' };
     }
 
@@ -828,68 +908,57 @@
       directDownload(item.fileId, item.name);
     }
 
-    // ================= 1. មុខងារ Upload ឯកសារ (គាំទ្រទំហំធំជាង 20MB ដោយបំបែកជាដុំ 5MB) =================
+    // ================= 1. មុខងារ Upload ឯកសារ (គាំទ្រទំហំធំជាង 20MB ដោយបំបែកជាដុំ) =================
     async function handleFiles(fileList) {
-      if (!fileList || fileList.length === 0 || isUploading) return;
-      if (!tgConfig || !tgConfig.token || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
-         alert('❌ សូមកុំភ្លេចដាក់ BOT_TOKEN និង CHAT_ID នៅក្នុងកូដ Code.gs ជាមុនសិន!');
-         return;
+      if (!fileList || fileList.length === 0) return;
+      if (isUploading) {
+        showToast('⏳ កំពុង Upload ឯកសារមុនសិន សូមរង់ចាំ...', true);
+        return;
       }
-      
-      isUploading = true;
+
       const files = Array.from(fileList);
-      const CHUNK_SIZE = 5 * 1024 * 1024; // កាត់ជាដុំ 5MB ដើម្បីឱ្យ Google Apps Script ទាញយកវិញបានលឿនមិនគាំង
-      const SINGLE_LIMIT = 18 * 1024 * 1024; // ឯកសារក្រោម 18MB មិនបាច់កាត់ទេ
-      let hasError = false;
-      let lastErrorMsg = '';
+      document.getElementById('fileInput').value = '';
+      document.getElementById('folderUploadInput').value = '';
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-
-        try {
-          // ករណីទី ១៖ ឯកសារតូចជាង ឬស្មើ 18MB
-          if (file.size <= SINGLE_LIMIT) {
-            showToast(`កំពុង Upload (${i + 1}/${files.length}): ${file.name}...`, true);
-            const formData = new FormData();
-            formData.append('chat_id', tgConfig.chatId);
-            formData.append('document', file);
-
-            const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, {
-              method: 'POST',
-              body: formData
-            });
-            const res = await response.json();
-
-            if (res.ok) {
-              const doc = res.result.document || res.result.video || res.result.audio || (res.result.photo ? res.result.photo[res.result.photo.length - 1] : null);
-              if (doc && doc.file_id) {
-                await apiCall('saveFileInfo', {
-                  filename: file.name,
-                  fileId: doc.file_id,
-                  parentId: currentParentId,
-                  sizeStr: formatSize(file.size)
-                });
-              }
-            } else {
-              throw new Error(res.description || 'Upload បរាជ័យ');
+      isUploading = true;
+      try {
+        // ប្រសិនបើមិនទាន់មាន Token ទេ ឱ្យវាទាញពី Server ភ្លាមៗសិន
+        if (!tgConfig || !tgConfig.token || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
+          showToast('កំពុងពិនិត្យការភ្ជាប់ទៅ Server...', true);
+          try {
+            const conf = await apiCall('getConfig');
+            if (conf && conf.token && !String(conf.token).includes('ដាក់_BOT_TOKEN')) {
+              tgConfig.token = conf.token.trim();
+              tgConfig.chatId = String(conf.chatId || '').trim();
+              safeSetStorage('sotip_bot_token', tgConfig.token);
+              safeSetStorage('sotip_chat_id', tgConfig.chatId);
             }
-          } 
-          // ករណីទី ២៖ ឯកសារធំជាង 18MB (កាត់ជាដុំ 5MB ដោយស្វ័យប្រវត្តិ)
-          else {
-            const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-            const chunkFileIds = [];
+          } catch (e) {}
+        }
 
-            for (let c = 0; c < totalChunks; c++) {
-              const start = c * CHUNK_SIZE;
-              const end = Math.min(start + CHUNK_SIZE, file.size);
-              const chunkBlob = new Blob([file.slice(start, end)], { type: 'application/octet-stream' });
-              
-              const percent = Math.round(((c + 1) / totalChunks) * 100);
-              showToast(`កំពុង Upload "${file.name}" ផ្នែកទី ${c + 1}/${totalChunks} (${percent}%)...`, true);
+        // បើនៅតែគ្មាន Token ទៀត ឱ្យបើកផ្ទាំង Settings ដើម្បីឱ្យអ្នកប្រើបញ្ចូលផ្ទាល់
+        if (!tgConfig || !tgConfig.token || !tgConfig.chatId || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
+          hideToast();
+          openSettingsModal();
+          alert('⚙️ សូមបញ្ចូល Web App URL (ឬ Bot Token និង Chat ID) នៅក្នុងផ្ទាំងកំណត់នេះជាមុនសិន!');
+          return;
+        }
 
+        const CHUNK_SIZE = 8 * 1024 * 1024; // កាត់ជាដុំ 8MB (លឿន និងសុវត្ថិភាពបំផុត)
+        const SINGLE_LIMIT = 19 * 1024 * 1024; // ឯកសារក្រោម 19MB មិនបាច់កាត់ទេ
+        let hasError = false;
+        let lastErrorMsg = '';
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+
+          try {
+            // ករណីទី ១៖ ឯកសារតូចជាង ឬស្មើ 19MB
+            if (file.size <= SINGLE_LIMIT) {
+              showToast(`កំពុង Upload (${i + 1}/${files.length}): ${file.name}...`, true);
               const formData = new FormData();
               formData.append('chat_id', tgConfig.chatId);
-              formData.append('document', chunkBlob, `${file.name}.sotip_part${c + 1}.bin`);
+              formData.append('document', file, file.name);
 
               const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, {
                 method: 'POST',
@@ -897,39 +966,85 @@
               });
               const res = await response.json();
 
-              const doc = res.ok ? (res.result.document || res.result.video || res.result.audio) : null;
-              if (doc && doc.file_id) {
-                chunkFileIds.push(doc.file_id);
+              if (res.ok && res.result) {
+                const r = res.result;
+                const doc = r.document || r.video || r.audio || r.animation || r.sticker || r.voice || (r.photo ? r.photo[r.photo.length - 1] : null);
+                if (doc && doc.file_id) {
+                  await apiCall('saveFileInfo', {
+                    filename: file.name,
+                    fileId: doc.file_id,
+                    parentId: currentParentId,
+                    sizeStr: formatSize(file.size)
+                  });
+                } else {
+                  throw new Error('Telegram មិនបានបញ្ជូន file_id ត្រឡប់មកវិញទេ');
+                }
               } else {
-                throw new Error(res.description || `បរាជ័យត្រង់ផ្នែកទី ${c + 1}`);
+                throw new Error(res.description || 'ការបញ្ជូនទៅ Telegram បរាជ័យ');
               }
+            } 
+            // ករណីទី ២៖ ឯកសារធំជាង 19MB (កាត់ជាដុំ 8MB ដោយស្វ័យប្រវត្តិ)
+            else {
+              const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+              const chunkFileIds = [];
+
+              for (let c = 0; c < totalChunks; c++) {
+                const start = c * CHUNK_SIZE;
+                const end = Math.min(start + CHUNK_SIZE, file.size);
+                const chunkBlob = file.slice(start, end, 'application/octet-stream');
+                
+                const percent = Math.round(((c + 1) / totalChunks) * 100);
+                showToast(`កំពុង Upload "${file.name}" ផ្នែកទី ${c + 1}/${totalChunks} (${percent}%)...`, true);
+
+                const formData = new FormData();
+                formData.append('chat_id', tgConfig.chatId);
+                // ប្រើឈ្មោះ ASCII សុទ្ធសម្រាប់ដុំបំបែក ដើម្បីកុំឱ្យ Telegram បដិសេធអក្សរខ្មែរឬនិមិត្តសញ្ញា
+                formData.append('document', chunkBlob, `sotip_part_${c + 1}_of_${totalChunks}.sotip_part`);
+
+                const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, {
+                  method: 'POST',
+                  body: formData
+                });
+                const res = await response.json();
+
+                if (res.ok && res.result) {
+                  const r = res.result;
+                  const doc = r.document || r.video || r.audio || r.animation;
+                  if (doc && doc.file_id) {
+                    chunkFileIds.push(doc.file_id);
+                  } else {
+                    throw new Error(`បាត់ file_id ត្រង់ផ្នែកទី ${c + 1}`);
+                  }
+                } else {
+                  throw new Error(res.description || `បរាជ័យត្រង់ផ្នែកទី ${c + 1}`);
+                }
+              }
+
+              showToast(`កំពុងរក្សាទុកទិន្នន័យ "${file.name}"...`, true);
+              const combinedFileId = 'CHUNKED:' + chunkFileIds.join(',');
+              await apiCall('saveFileInfo', {
+                filename: file.name,
+                fileId: combinedFileId,
+                parentId: currentParentId,
+                sizeStr: formatSize(file.size)
+              });
             }
-
-            const combinedFileId = 'CHUNKED:' + chunkFileIds.join(',');
-            await apiCall('saveFileInfo', {
-              filename: file.name,
-              fileId: combinedFileId,
-              parentId: currentParentId,
-              sizeStr: formatSize(file.size)
-            });
+          } catch (e) {
+            hasError = true;
+            lastErrorMsg = e.message;
           }
-        } catch (e) {
-          hasError = true;
-          lastErrorMsg = e.message;
         }
-      }
 
-      isUploading = false;
-      if (hasError) {
-         alert('⚠️ បរាជ័យក្នុងការ Upload:\n' + lastErrorMsg);
-         showToast('⚠️ បរាជ័យ', false);
-      } else {
-         showToast('✅ Upload រួចរាល់!', false);
+        if (hasError) {
+          alert('⚠️ បរាជ័យក្នុងការ Upload:\n' + lastErrorMsg);
+          showToast('❌ បរាជ័យ: ' + lastErrorMsg, false);
+        } else {
+          showToast('✅ Upload រួចរាល់ដោយជោគជ័យ!', false);
+        }
+        loadFiles();
+      } finally {
+        isUploading = false;
       }
-      
-      document.getElementById('fileInput').value = '';
-      document.getElementById('folderUploadInput').value = '';
-      loadFiles();
     }
 
     // ================= 2. មុខងារ Preview គ្រប់ប្រភេទឯកសារ =================
@@ -938,7 +1053,6 @@
       const parts = String(fileName || '').split('.');
       const ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
 
-      // ករណីទី ១៖ ឯកសារធំលើស 20MB ដែលបានបំបែកជាដុំ (CHUNKED)
       if (String(fileId).startsWith('CHUNKED:')) {
         const totalParts = String(fileId).replace('CHUNKED:', '').split(',').length;
         document.getElementById('previewTitle').innerHTML = `<i class="bi ${vis.icon} me-2" style="color:${vis.color}"></i>${escapeHtml(fileName)}`;
@@ -970,7 +1084,6 @@
         return;
       }
 
-      // ករណីទី ២៖ ឯកសារធម្មតា
       showToast('កំពុងរៀបចំការមើលជាមុន...', true);
       try {
         const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/getFile?file_id=${fileId}`);
@@ -979,7 +1092,7 @@
 
         if (!res.ok) {
           if (res.description && res.description.toLowerCase().includes('too big')) {
-            alert('⚠️ ឯកសារ "' + fileName + '" មានទំហំធំជាង 20MB ដែលត្រូវបានបញ្ជូនពីមុន ឬ Sync ពី Telegram ផ្ទាល់ (Telegram បិទមិនឱ្យ Bot ទាញយកឯកសារទោលលើស 20MB ទេ)។\n\n👉 ដំណោះស្រាយ៖ សូមលុបឯកសារនេះ រួចចុចប៊ូតុង "Upload ឯកសារ" នៅក្នុងវេបសាយនេះដើម្បី Upload វាឡើងវិញ នោះប្រព័ន្ធនឹងបំបែកវាដោយស្វ័យប្រវត្តិ!');
+            alert('⚠️ ឯកសារ "' + fileName + '" ជាឯកសារចាស់ដែលលើស 20MB។\n\n👉 សូមលុបវាចោល រួចចុចប៊ូតុង "Upload ឯកសារ" ដើម្បី Upload វាឡើងវិញ!');
           } else {
             showToast('❌ មិនអាចបើកឯកសារបានទេ: ' + (res.description || ''), false);
           }
@@ -1000,7 +1113,6 @@
 
         const textExtensions = ['txt', 'md', 'csv', 'json', 'xml', 'html', 'htm', 'css', 'js', 'gs', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'log', 'ini', 'yaml', 'yml', 'sh', 'bat'];
 
-        // ២.១ ប្រសិនបើជាឯកសារអត្ថបទ ឬកូដ (.txt, .gs, .html, .js...)
         if (textExtensions.includes(ext)) {
           try {
             const chunkRes = await apiCall('downloadChunk', { fileId: fileId });
@@ -1031,7 +1143,6 @@
           return;
         }
 
-        // ២.២ ប្រភេទឯកសារផ្សេងៗទៀត
         setTimeout(() => {
           if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)) {
             pBody.innerHTML = `<img src="${fileUrl}" style="max-width:100%; max-height:70vh; object-fit:contain; padding:12px;">`;
@@ -1045,7 +1156,7 @@
             pBody.innerHTML = `
               <div class="w-100 d-flex flex-column" style="width:100%;">
                 <div class="d-flex justify-content-end gap-2 px-3 py-1 bg-light border-bottom">
-                  <small class="text-muted align-self-center me-auto">ប្រសិនបើមើលមិនឃើញ សូមប្ដូរប្រព័ន្ធបើក៖</small>
+                  <small class="text-muted align-self-center me-auto">ប្ដូរប្រព័ន្ធបើកមើល៖</small>
                   <button type="button" class="btn btn-sm btn-outline-primary py-0" onclick="document.getElementById('docIframe').src='${msViewer}'">Microsoft Viewer</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="document.getElementById('docIframe').src='${gViewer}'">Google Viewer</button>
                 </div>
@@ -1083,7 +1194,6 @@
 
     // ================= 3. មុខងារ Download និងផ្គុំឯកសារធំៗបញ្ចូលគ្នាវិញ =================
     async function directDownload(fileId, fileName = 'downloaded_file') {
-      // ករណីឯកសារធំជាង 20MB (CHUNKED)
       if (String(fileId).startsWith('CHUNKED:')) {
         const chunkIds = String(fileId).replace('CHUNKED:', '').split(',');
         const byteArrays = [];
@@ -1126,7 +1236,6 @@
         return;
       }
 
-      // ករណីឯកសារធម្មតា (តូចជាង 20MB)
       showToast('កំពុងទាញយក...', true);
       try {
         const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/getFile?file_id=${fileId}`);
@@ -1135,11 +1244,7 @@
         if (res.ok) {
           window.open(`https://api.telegram.org/file/bot${tgConfig.token}/${res.result.file_path}`, '_blank');
         } else {
-          if (res.description && res.description.toLowerCase().includes('too big')) {
-            alert('⚠️ ឯកសារនេះមានទំហំធំជាង 20MB ដែលមិនទាន់បានបំបែកជាដុំ។ សូមលុបវាចោល រួច Upload ម្ដងទៀតតាមរយៈប៊ូតុង "Upload ឯកសារ" ក្នុងកម្មវិធីនេះ!');
-          } else {
-            showToast('❌ ' + (res.description || 'មិនអាចទាញយកបានទេ'), false);
-          }
+          showToast('❌ ' + (res.description || 'មិនអាចទាញយកបានទេ'), false);
         }
       } catch (e) { hideToast(); }
     }

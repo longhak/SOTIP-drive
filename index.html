@@ -19,6 +19,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- បណ្ណាល័យ PDF.js សម្រាប់បើកមើលឯកសារ PDF ធំៗលើស 20MB គ្រប់ឧបករណ៍ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
   <style>
     :root, body[data-theme="basic"] {
       --sidebar-width: 265px; --bg-body: #f4f6f9; --bg-panel: #ffffff; --bg-sidebar: #132e53; --bg-topbar: #ffffff;
@@ -100,20 +103,12 @@
     .view-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background-color: var(--bg-panel); border-radius: 10px; color: var(--text-main); cursor: pointer; transition: all 0.2s; flex-shrink: 0;}
     .view-btn.active { background-color: var(--primary); color: #fff; border-color: var(--primary); }
 
-    /* Action Bar & File Input Overlay (ធានាថាចុចติด ១០០% គ្រប់ឧបករណ៍) */
+    /* Action Bar */
     .action-bar { padding: 16px 24px 12px; display: flex; gap: 10px; flex-wrap: wrap; flex-shrink: 0; }
     .btn-action { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; user-select: none; }
     .btn-outline { background-color: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main); box-shadow: var(--card-shadow); }
     .btn-outline:hover { background-color: var(--hover-bg); }
-    .btn-action input[type="file"] {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      z-index: 5;
-    }
+    .btn-action input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; }
 
     /* Content Area */
     .content-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0 24px 40px; }
@@ -179,7 +174,7 @@
     .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2500; display: none; align-items: center; justify-content: center; padding: 16px; }
     .custom-modal-overlay.active { display: flex; }
     .custom-modal-box { background-color: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 460px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: modalFadeIn 0.2s ease; }
-    .custom-modal-box.modal-xl-box { max-width: 960px; }
+    .custom-modal-box.modal-xl-box { max-width: 980px; }
     @keyframes modalFadeIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .cm-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
     .cm-title { margin: 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
@@ -204,12 +199,32 @@
     .tc-linear { background: #060911; border: 3px solid #0ea5e9; }
     .theme-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
 
-    /* Overlay & Toast */
+    /* Overlay, Toast & PDF Canvas Container */
     .drag-overlay { position: absolute; inset: 16px; background: rgba(37, 99, 235, 0.08); backdrop-filter: blur(2px); border: 3px dashed var(--primary); border-radius: 20px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; pointer-events: none; }
     .drag-overlay.active { display: flex; pointer-events: auto; }
     .toast-status { position: fixed; bottom: 20px; right: 20px; background-color: #0f172a; color: #ffffff; padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); z-index: 4000; transform: translateY(120px); opacity: 0; transition: all 0.3s; max-width: calc(100vw - 32px); font-size: 0.88rem; pointer-events: none; }
     .toast-status.show { transform: translateY(0); opacity: 1; }
-    #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 75vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; }
+    #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 78vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; }
+    
+    .pdf-canvas-list {
+      width: 100%;
+      flex: 1;
+      overflow: auto;
+      background: #334155;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      max-height: 70vh;
+    }
+    .pdf-page-canvas {
+      background: #fff;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      border-radius: 4px;
+      max-width: 100%;
+      height: auto !important;
+    }
 
     @media (max-width: 768px) {
       .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25); }
@@ -241,7 +256,7 @@
         <div class="logo-icon"><i class="bi bi-cloud-check-fill"></i></div>
         <div class="logo-text">
           <h2>SOTIP Drive</h2>
-          <p>v3.0 • គាំទ្រលើស 20MB</p>
+          <p>v3.1 • Preview 20MB+</p>
         </div>
       </div>
       <button type="button" class="btn-close-sidebar" onclick="toggleSidebar(false)"><i class="bi bi-x-lg"></i></button>
@@ -273,7 +288,7 @@
       <div class="progress">
         <div class="progress-bar"></div>
       </div>
-      <p class="storage-desc">រក្សាទុកក្នុង Telegram Cloud (គាំទ្រឯកសារធំលើស 20MB ដោយស្វ័យប្រវត្តិ)</p>
+      <p class="storage-desc">រក្សាទុកក្នុង Telegram Cloud (គាំទ្រការបើកមើល និងទាញយកឯកសារធំលើស 20MB)</p>
     </div>
   </aside>
 
@@ -313,13 +328,11 @@
         <i class="bi bi-folder-plus text-warning"></i> Folder ថ្មី
       </button>
 
-      <!-- ប៊ូតុង Upload ឯកសារ (មាន input ពីលើផ្ទាល់ ចុចติด ១០០%) -->
       <div class="btn-action btn-outline">
         <i class="bi bi-upload text-primary"></i> Upload ឯកសារ
         <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
       </div>
 
-      <!-- ប៊ូតុង Upload Folder -->
       <div class="btn-action btn-outline">
         <i class="bi bi-folder-symlink text-primary"></i> Upload Folder
         <input type="file" id="folderUploadInput" webkitdirectory directory multiple onchange="handleFiles(this.files)">
@@ -497,9 +510,12 @@
     </div>
   </div>
 
-  <!-- ================= JavaScript (v3.0) ================= -->
+  <!-- ================= JavaScript (v3.1) ================= -->
   <script>
-    // អ្នកអាចដាក់ Web App URL ទីនេះ ឬដាក់តាមរយៈប៊ូតុង ⚙️ នៅលើអេក្រង់វេបសាយផ្ទាល់ក៏បាន!
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
     const DEFAULT_GAS_URL = "ដាក់_WEB_APP_URL_របស់_អ្នកនៅទីនេះ";
 
     let currentParentId = 'root';
@@ -508,6 +524,10 @@
     let allCurrentFiles = [];
     let renderedFiles = [];
     let currentPreviewText = '';
+    let activeBlobUrl = null;
+    let activePdfDoc = null;
+    let currentPdfScale = 1.3;
+    let previewAbortId = 0;
 
     function safeGetStorage(key, fallback) {
       try { return window.localStorage.getItem(key) || fallback; } catch (e) { return fallback; }
@@ -533,7 +553,6 @@
       selectAppTheme(savedTheme, false);
       setupDragDrop();
 
-      // ទាញយក Token ដែលធ្លាប់រក្សាទុកក្នុងម៉ាស៊ីនជាមុន (ដើម្បីឱ្យ Upload ដើរភ្លាមមិនបាច់រង់ចាំ)
       const cachedToken = safeGetStorage('sotip_bot_token', '');
       const cachedChatId = safeGetStorage('sotip_chat_id', '');
       if (cachedToken && cachedChatId) {
@@ -646,7 +665,10 @@
 
     // ================== ការគ្រប់គ្រងផ្ទាំង UI ==================
     function openModal(id) { closeAllMenus(); document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); if (id === 'previewModal') stopMedia(); }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+      if (id === 'previewModal') stopMedia();
+    }
 
     function selectAppTheme(themeName, notify) {
       document.body.setAttribute('data-theme', themeName);
@@ -723,6 +745,17 @@
       if (['apk', 'exe', 'msi', 'dmg', 'iso', 'deb'].includes(ext)) return { icon: 'bi-file-earmark-binary-fill', color: '#e11d48', bg: 'rgba(225, 29, 72, 0.15)', badge: ext.toUpperCase() };
       if (['psd', 'ai', 'eps', 'fig', 'ttf', 'otf', 'woff', 'woff2'].includes(ext)) return { icon: 'bi-file-earmark-font-fill', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.15)', badge: ext.toUpperCase() };
       return { icon: 'bi-file-earmark-fill', color: '#64748b', bg: 'rgba(100, 116, 139, 0.15)', badge: ext ? ext.substring(0, 4).toUpperCase() : 'FILE' };
+    }
+
+    function getMimeTypeByExt(ext) {
+      const map = {
+        pdf: 'application/pdf',
+        png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', bmp: 'image/bmp',
+        mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', mkv: 'video/x-matroska',
+        mp3: 'audio/mpeg', wav: 'audio/wav', m4a: 'audio/mp4', ogg: 'audio/ogg', flac: 'audio/flac',
+        txt: 'text/plain;charset=utf-8', html: 'text/html;charset=utf-8', css: 'text/css;charset=utf-8', js: 'text/javascript;charset=utf-8', json: 'application/json;charset=utf-8'
+      };
+      return map[ext] || 'application/octet-stream';
     }
 
     function escapeHtml(str) {
@@ -922,7 +955,6 @@
 
       isUploading = true;
       try {
-        // ប្រសិនបើមិនទាន់មាន Token ទេ ឱ្យវាទាញពី Server ភ្លាមៗសិន
         if (!tgConfig || !tgConfig.token || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
           showToast('កំពុងពិនិត្យការភ្ជាប់ទៅ Server...', true);
           try {
@@ -936,7 +968,6 @@
           } catch (e) {}
         }
 
-        // បើនៅតែគ្មាន Token ទៀត ឱ្យបើកផ្ទាំង Settings ដើម្បីឱ្យអ្នកប្រើបញ្ចូលផ្ទាល់
         if (!tgConfig || !tgConfig.token || !tgConfig.chatId || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
           hideToast();
           openSettingsModal();
@@ -944,8 +975,8 @@
           return;
         }
 
-        const CHUNK_SIZE = 8 * 1024 * 1024; // កាត់ជាដុំ 8MB (លឿន និងសុវត្ថិភាពបំផុត)
-        const SINGLE_LIMIT = 19 * 1024 * 1024; // ឯកសារក្រោម 19MB មិនបាច់កាត់ទេ
+        const CHUNK_SIZE = 8 * 1024 * 1024;
+        const SINGLE_LIMIT = 19 * 1024 * 1024;
         let hasError = false;
         let lastErrorMsg = '';
 
@@ -953,7 +984,6 @@
           const file = files[i];
 
           try {
-            // ករណីទី ១៖ ឯកសារតូចជាង ឬស្មើ 19MB
             if (file.size <= SINGLE_LIMIT) {
               showToast(`កំពុង Upload (${i + 1}/${files.length}): ${file.name}...`, true);
               const formData = new FormData();
@@ -982,9 +1012,7 @@
               } else {
                 throw new Error(res.description || 'ការបញ្ជូនទៅ Telegram បរាជ័យ');
               }
-            } 
-            // ករណីទី ២៖ ឯកសារធំជាង 19MB (កាត់ជាដុំ 8MB ដោយស្វ័យប្រវត្តិ)
-            else {
+            } else {
               const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
               const chunkFileIds = [];
 
@@ -998,7 +1026,6 @@
 
                 const formData = new FormData();
                 formData.append('chat_id', tgConfig.chatId);
-                // ប្រើឈ្មោះ ASCII សុទ្ធសម្រាប់ដុំបំបែក ដើម្បីកុំឱ្យ Telegram បដិសេធអក្សរខ្មែរឬនិមិត្តសញ្ញា
                 formData.append('document', chunkBlob, `sotip_part_${c + 1}_of_${totalChunks}.sotip_part`);
 
                 const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/sendDocument`, {
@@ -1047,43 +1074,204 @@
       }
     }
 
-    // ================= 2. មុខងារ Preview គ្រប់ប្រភេទឯកសារ =================
+    // ================= 2. មុខងារបង្ហាញ PDF ផ្ទាល់ (Built-in PDF.js Viewer គាំទ្រឯកសារ 20MB+) =================
+    async function renderPdfWithPdfJs(uint8Array, blobUrl, fileName) {
+      const pBody = document.getElementById('previewBody');
+      if (typeof pdfjsLib === 'undefined') {
+        pBody.innerHTML = `<iframe src="${blobUrl}" style="width:100%; height:72vh; border:none;"></iframe>`;
+        return;
+      }
+
+      try {
+        pBody.innerHTML = `
+          <div class="w-100 d-flex flex-column" style="width:100%; height:75vh;">
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 bg-dark text-white border-bottom flex-wrap gap-2">
+              <span class="small fw-bold text-warning" id="pdfPageInfo"><i class="bi bi-file-earmark-pdf me-1"></i> កំពុងរៀបចំទំព័រ PDF...</span>
+              <div class="d-flex gap-2 align-items-center">
+                <button type="button" class="btn btn-sm btn-outline-light py-0 px-2" onclick="zoomPdf(-0.25)" title="បង្រួម"><i class="bi bi-zoom-out"></i></button>
+                <span class="small" id="pdfZoomLabel">130%</span>
+                <button type="button" class="btn btn-sm btn-outline-light py-0 px-2" onclick="zoomPdf(0.25)" title="ពង្រីក"><i class="bi bi-zoom-in"></i></button>
+                <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-info text-white py-0 px-2" title="បើកផ្ទាំងធំ"><i class="bi bi-box-arrow-up-right me-1"></i>ផ្ទាំងធំ</a>
+              </div>
+            </div>
+            <div class="pdf-canvas-list" id="pdfCanvasContainer"></div>
+          </div>`;
+
+        const loadingTask = pdfjsLib.getDocument({ data: uint8Array });
+        activePdfDoc = await loadingTask.promise;
+        currentPdfScale = window.innerWidth < 768 ? 1.15 : 1.35;
+        await drawAllPdfPages();
+      } catch (err) {
+        pBody.innerHTML = `<iframe src="${blobUrl}" style="width:100%; height:72vh; border:none;"></iframe>`;
+      }
+    }
+
+    async function drawAllPdfPages() {
+      if (!activePdfDoc) return;
+      const container = document.getElementById('pdfCanvasContainer');
+      const infoEl = document.getElementById('pdfPageInfo');
+      const zoomEl = document.getElementById('pdfZoomLabel');
+      if (!container) return;
+
+      container.innerHTML = '';
+      if (zoomEl) zoomEl.textContent = Math.round(currentPdfScale * 100) + '%';
+      const totalPages = activePdfDoc.numPages;
+
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        if (!document.getElementById('pdfCanvasContainer')) break;
+        if (infoEl) infoEl.innerHTML = `<i class="bi bi-file-earmark-pdf me-1"></i> ទំព័រសរុប៖ ${totalPages} (កំពុងបង្ហាញ ${pageNum}/${totalPages})`;
+        
+        const page = await activePdfDoc.getPage(pageNum);
+        const viewport = page.getViewport({ scale: currentPdfScale });
+        const canvas = document.createElement('canvas');
+        canvas.className = 'pdf-page-canvas';
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        container.appendChild(canvas);
+
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+      }
+      if (infoEl) infoEl.innerHTML = `<i class="bi bi-file-earmark-pdf me-1"></i> ចំនួនទំព័រសរុប៖ ${totalPages} ទំព័រ`;
+    }
+
+    function zoomPdf(delta) {
+      if (!activePdfDoc) return;
+      const nextScale = Math.min(Math.max(currentPdfScale + delta, 0.6), 3.0);
+      if (nextScale === currentPdfScale) return;
+      currentPdfScale = nextScale;
+      drawAllPdfPages();
+    }
+
+    // ================= 3. មុខងារ Preview គ្រប់ប្រភេទឯកសារ (រួមទាំងឯកសារលើស 20MB) =================
     async function openPreview(fileId, fileName) {
+      const currentTask = ++previewAbortId;
       const vis = getFileVisual(fileName, false);
       const parts = String(fileName || '').split('.');
       const ext = parts.length > 1 ? parts.pop().toLowerCase() : '';
+      const textExtensions = ['txt', 'md', 'csv', 'json', 'xml', 'html', 'htm', 'css', 'js', 'gs', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'log', 'ini', 'yaml', 'yml', 'sh', 'bat'];
 
+      document.getElementById('previewTitle').innerHTML = `<i class="bi ${vis.icon} me-2" style="color:${vis.color}"></i>${escapeHtml(fileName)}`;
+      const pBody = document.getElementById('previewBody');
+      const btnDl = document.getElementById('btnDownloadPreview');
+
+      // ករណីទី ១៖ ឯកសារធំលើស 20MB ដែលបានបំបែកជាដុំ (CHUNKED) -> ទាញមកផ្គុំហើយបើក Preview ផ្ទាល់!
       if (String(fileId).startsWith('CHUNKED:')) {
-        const totalParts = String(fileId).replace('CHUNKED:', '').split(',').length;
-        document.getElementById('previewTitle').innerHTML = `<i class="bi ${vis.icon} me-2" style="color:${vis.color}"></i>${escapeHtml(fileName)}`;
-        
-        const btnDl = document.getElementById('btnDownloadPreview');
+        const chunkIds = String(fileId).replace('CHUNKED:', '').split(',');
+        const totalParts = chunkIds.length;
+
         btnDl.removeAttribute('href');
         btnDl.removeAttribute('target');
         btnDl.onclick = function(e) {
           e.preventDefault();
-          closeModal('previewModal');
           directDownload(fileId, fileName);
         };
 
-        document.getElementById('previewBody').innerHTML = `
-          <div class="p-5 text-center text-dark">
-            <i class="bi ${vis.icon}" style="font-size: 4.5rem; color:${vis.color};"></i>
-            <h6 class="mt-3 fw-bold">${escapeHtml(fileName)}</h6>
-            <span class="badge bg-primary mb-2">ឯកសារទំហំធំ (${totalParts} ផ្នែក)</span>
-            <p class="text-muted small mb-3">ឯកសារនេះមានទំហំធំជាង 20MB ត្រូវបានរក្សាទុកជា ${totalParts} ផ្នែក។<br>សូមចុចប៊ូតុងខាងក្រោមដើម្បីទាញយក និងផ្គុំជាឯកសារដើមដោយស្វ័យប្រវត្តិ។</p>
-            <button type="button" id="btnAssembleNow" class="btn btn-primary px-4 fw-bold">
-              <i class="bi bi-download me-2"></i>ទាញយកឯកសារពេញលេញ
-            </button>
+        pBody.innerHTML = `
+          <div class="p-5 text-center text-dark" style="max-width:460px; width:100%;">
+            <div class="spinner-border text-primary mb-3" role="status"></div>
+            <h6 class="fw-bold mb-1">${escapeHtml(fileName)}</h6>
+            <p class="text-muted small mb-3" id="chunkPreviewStatus">កំពុងទាញយក និងផ្គុំឯកសារដើម្បីបើកមើល (ផ្នែកទី 1/${totalParts})...</p>
+            <div class="progress" style="height: 10px; background:#e2e8f0; border-radius:8px;">
+              <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="chunkPreviewBar" style="width: 8%;"></div>
+            </div>
           </div>`;
         openModal('previewModal');
-        document.getElementById('btnAssembleNow').onclick = function() {
-          closeModal('previewModal');
-          directDownload(fileId, fileName);
-        };
+
+        try {
+          const byteArrays = [];
+          let totalLength = 0;
+
+          for (let i = 0; i < totalParts; i++) {
+            if (currentTask !== previewAbortId) return; // បើអ្នកប្រើបិទផ្ទាំង Modal ឱ្យឈប់ទាញ
+            const percent = Math.round(((i + 1) / totalParts) * 100);
+            const statusEl = document.getElementById('chunkPreviewStatus');
+            const barEl = document.getElementById('chunkPreviewBar');
+            if (statusEl) statusEl.textContent = `កំពុងទាញយក និងផ្គុំឯកសារដើម្បីបើកមើល ផ្នែកទី ${i + 1}/${totalParts} (${percent}%)...`;
+            if (barEl) barEl.style.width = percent + '%';
+
+            const res = await apiCall('downloadChunk', { fileId: chunkIds[i] });
+            if (!res || !res.ok || !res.base64) {
+              throw new Error((res && res.error) ? res.error : `បរាជ័យក្នុងការទាញផ្នែកទី ${i + 1}`);
+            }
+
+            const byteCharacters = atob(res.base64);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+            for (let j = 0; j < byteCharacters.length; j++) {
+              byteNumbers[j] = byteCharacters.charCodeAt(j);
+            }
+            byteArrays.push(byteNumbers);
+            totalLength += byteNumbers.length;
+          }
+
+          if (currentTask !== previewAbortId) return;
+
+          // ផ្គុំបំណែកទាំងអស់ចូលគ្នាជាទិន្នន័យដើម
+          const combinedUint8 = new Uint8Array(totalLength);
+          let offset = 0;
+          for (const arr of byteArrays) {
+            combinedUint8.set(arr, offset);
+            offset += arr.length;
+          }
+
+          const mimeType = getMimeTypeByExt(ext);
+          const finalBlob = new Blob([combinedUint8], { type: mimeType });
+          if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
+          activeBlobUrl = URL.createObjectURL(finalBlob);
+
+          // កំណត់ប៊ូតុង "ទាញយក" ខាងលើឱ្យទាញយកឯកសារដែលផ្គុំរួចនេះភ្លាមៗតែម្ដង
+          btnDl.onclick = null;
+          btnDl.href = activeBlobUrl;
+          btnDl.download = fileName;
+
+          // បង្ហាញឯកសារតាមប្រភេទនីមួយៗ
+          if (ext === 'pdf') {
+            await renderPdfWithPdfJs(combinedUint8, activeBlobUrl, fileName);
+          } else if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)) {
+            pBody.innerHTML = `<img src="${activeBlobUrl}" style="max-width:100%; max-height:72vh; object-fit:contain; padding:12px;">`;
+          } else if (['mp4', 'webm', 'mov', 'ogg', 'm4v', 'mkv', '3gp'].includes(ext)) {
+            pBody.innerHTML = `<video src="${activeBlobUrl}" controls autoplay playsinline style="max-width:100%; max-height:72vh; background:#000; width:100%;"></video>`;
+          } else if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus'].includes(ext)) {
+            pBody.innerHTML = `<div class="p-5 text-dark text-center"><i class="bi bi-music-note-beamed text-primary" style="font-size: 4rem;"></i><p class="mt-2 fw-semibold">${escapeHtml(fileName)}</p><audio src="${activeBlobUrl}" controls autoplay class="mt-2"></audio></div>`;
+          } else if (textExtensions.includes(ext)) {
+            currentPreviewText = new TextDecoder('utf-8').decode(combinedUint8);
+            pBody.innerHTML = `
+              <div class="w-100 h-100 d-flex flex-column" style="background:#1e293b; color:#f8fafc; width:100%;">
+                <div class="d-flex justify-content-between align-items-center px-3 py-2" style="background:#0f172a; border-bottom:1px solid #334155;">
+                  <span class="small text-info fw-bold"><i class="bi bi-file-earmark-code me-1"></i> ${escapeHtml(fileName)}</span>
+                  <button type="button" class="btn btn-sm btn-outline-light py-1 px-2" onclick="copyPreviewText(this)" style="font-size:0.78rem;">
+                    <i class="bi bi-clipboard me-1"></i> ចម្លងអត្ថបទ (Copy)
+                  </button>
+                </div>
+                <pre class="m-0 p-3" style="flex:1; overflow:auto; max-height:65vh; white-space:pre-wrap; word-break:break-word; font-family:'Consolas', 'Battambang', monospace !important; font-size:0.88rem; line-height:1.6; color:#e2e8f0; text-align:left;">${escapeHtml(currentPreviewText)}</pre>
+              </div>`;
+          } else {
+            pBody.innerHTML = `
+              <div class="p-5 text-center text-dark">
+                <i class="bi ${vis.icon}" style="font-size: 4.5rem; color:${vis.color};"></i>
+                <h6 class="mt-3 fw-bold">${escapeHtml(fileName)}</h6>
+                <span class="badge bg-success mb-2">ផ្គុំឯកសាររួចរាល់ ១០០%</span>
+                <p class="text-muted small mb-3">ឯកសារប្រភេទ <b>.${escapeHtml(ext)}</b> ត្រូវបានផ្គុំរួចរាល់។ សូមចុចប៊ូតុងខាងក្រោមដើម្បីរក្សាទុកក្នុងឧបករណ៍របស់អ្នក។</p>
+                <a href="${activeBlobUrl}" download="${escapeHtml(fileName)}" class="btn btn-primary px-4 fw-bold">
+                  <i class="bi bi-download me-2"></i>រក្សាទុកឯកសារឥឡូវនេះ
+                </a>
+              </div>`;
+          }
+        } catch (err) {
+          pBody.innerHTML = `
+            <div class="p-5 text-center text-dark">
+              <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3.5rem;"></i>
+              <h6 class="mt-3 fw-bold">មិនអាចផ្គុំឯកសារដើម្បីបើកមើលបានទេ</h6>
+              <p class="text-danger small mb-3">${escapeHtml(err.message)}</p>
+              <button type="button" class="btn btn-primary px-4" onclick="directDownload('${fileId}', '${escapeHtml(fileName)}')">
+                <i class="bi bi-download me-2"></i>ព្យាយាមទាញយកម្ដងទៀត
+              </button>
+            </div>`;
+        }
         return;
       }
 
+      // ករណីទី ២៖ ឯកសារធម្មតា (តូចជាង 20MB)
       showToast('កំពុងរៀបចំការមើលជាមុន...', true);
       try {
         const response = await fetch(`https://api.telegram.org/bot${tgConfig.token}/getFile?file_id=${fileId}`);
@@ -1100,18 +1288,12 @@
         }
 
         const fileUrl = `https://api.telegram.org/file/bot${tgConfig.token}/${res.result.file_path}`;
-        document.getElementById('previewTitle').innerHTML = `<i class="bi ${vis.icon} me-2" style="color:${vis.color}"></i>${escapeHtml(fileName)}`;
-        
-        const btnDl = document.getElementById('btnDownloadPreview');
         btnDl.onclick = null;
         btnDl.href = fileUrl;
         btnDl.target = '_blank';
 
-        const pBody = document.getElementById('previewBody');
         pBody.innerHTML = '<div class="spinner-border text-primary my-5"></div>';
         openModal('previewModal');
-
-        const textExtensions = ['txt', 'md', 'csv', 'json', 'xml', 'html', 'htm', 'css', 'js', 'gs', 'sql', 'py', 'php', 'java', 'c', 'cpp', 'h', 'log', 'ini', 'yaml', 'yml', 'sh', 'bat'];
 
         if (textExtensions.includes(ext)) {
           try {
@@ -1145,9 +1327,9 @@
 
         setTimeout(() => {
           if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)) {
-            pBody.innerHTML = `<img src="${fileUrl}" style="max-width:100%; max-height:70vh; object-fit:contain; padding:12px;">`;
+            pBody.innerHTML = `<img src="${fileUrl}" style="max-width:100%; max-height:72vh; object-fit:contain; padding:12px;">`;
           } else if (['mp4', 'webm', 'mov', 'ogg', 'm4v', 'mkv', '3gp'].includes(ext)) {
-            pBody.innerHTML = `<video src="${fileUrl}" controls autoplay playsinline style="max-width:100%; max-height:70vh; background:#000; width:100%;"></video>`;
+            pBody.innerHTML = `<video src="${fileUrl}" controls autoplay playsinline style="max-width:100%; max-height:72vh; background:#000; width:100%;"></video>`;
           } else if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus'].includes(ext)) {
             pBody.innerHTML = `<div class="p-5 text-dark text-center"><i class="bi bi-music-note-beamed text-primary" style="font-size: 4rem;"></i><p class="mt-2 fw-semibold">${escapeHtml(fileName)}</p><audio src="${fileUrl}" controls autoplay class="mt-2"></audio></div>`;
           } else if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
@@ -1164,7 +1346,14 @@
               </div>`;
           } else if (ext === 'pdf') {
             const gViewer = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
-            pBody.innerHTML = `<iframe src="${gViewer}" style="width:100%; height:70vh; border:none;"></iframe>`;
+            pBody.innerHTML = `
+              <div class="w-100 d-flex flex-column" style="width:100%;">
+                <div class="d-flex justify-content-end gap-2 px-3 py-1 bg-light border-bottom">
+                  <small class="text-muted align-self-center me-auto">ប្រសិនបើផ្ទាំងស សូមចុចប៊ូតុងខាងស្ដាំ៖</small>
+                  <button type="button" class="btn btn-sm btn-primary py-0" onclick="loadDirectPdfUnder20MB('${fileId}', '${escapeHtml(fileName)}')">បើកដោយកម្មវិធីអានផ្ទាល់ (PDF.js)</button>
+                </div>
+                <iframe src="${gViewer}" style="width:100%; height:66vh; border:none;"></iframe>
+              </div>`;
           } else {
             pBody.innerHTML = `
               <div class="p-5 text-center text-dark">
@@ -1181,6 +1370,25 @@
       }
     }
 
+    async function loadDirectPdfUnder20MB(fileId, fileName) {
+      const pBody = document.getElementById('previewBody');
+      pBody.innerHTML = '<div class="p-5 text-center text-dark"><div class="spinner-border text-primary mb-2"></div><p class="small text-muted mb-0">កំពុងទាញយកទំព័រ PDF...</p></div>';
+      try {
+        const res = await apiCall('downloadChunk', { fileId: fileId });
+        if (res && res.ok && res.base64) {
+          const binaryStr = atob(res.base64);
+          const bytes = new Uint8Array(binaryStr.length);
+          for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+          const blob = new Blob([bytes], { type: 'application/pdf' });
+          if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
+          activeBlobUrl = URL.createObjectURL(blob);
+          await renderPdfWithPdfJs(bytes, activeBlobUrl, fileName);
+        }
+      } catch (e) {
+        showToast('❌ ' + e.message, false);
+      }
+    }
+
     function copyPreviewText(btnElement) {
       if (!currentPreviewText) return;
       navigator.clipboard.writeText(currentPreviewText).then(() => {
@@ -1192,7 +1400,7 @@
       });
     }
 
-    // ================= 3. មុខងារ Download និងផ្គុំឯកសារធំៗបញ្ចូលគ្នាវិញ =================
+    // ================= 4. មុខងារ Download និងផ្គុំឯកសារធំៗបញ្ចូលគ្នាវិញ =================
     async function directDownload(fileId, fileName = 'downloaded_file') {
       if (String(fileId).startsWith('CHUNKED:')) {
         const chunkIds = String(fileId).replace('CHUNKED:', '').split(',');
@@ -1217,7 +1425,8 @@
           }
 
           showToast('កំពុងរៀបចំឯកសារដើម...', true);
-          const finalBlob = new Blob(byteArrays, { type: 'application/octet-stream' });
+          const ext = String(fileName || '').split('.').pop().toLowerCase();
+          const finalBlob = new Blob(byteArrays, { type: getMimeTypeByExt(ext) });
           const downloadUrl = URL.createObjectURL(finalBlob);
           
           const a = document.createElement('a');
@@ -1249,7 +1458,16 @@
       } catch (e) { hideToast(); }
     }
 
-    function stopMedia() { document.getElementById('previewBody').innerHTML = ''; }
+    function stopMedia() {
+      previewAbortId++;
+      activePdfDoc = null;
+      document.getElementById('previewBody').innerHTML = '';
+      if (activeBlobUrl) {
+        URL.revokeObjectURL(activeBlobUrl);
+        activeBlobUrl = null;
+      }
+    }
+
     function showToast(text, spin) {
       document.getElementById('toastText').textContent = text;
       document.getElementById('toastSpinner').style.display = spin ? 'inline-block' : 'none';

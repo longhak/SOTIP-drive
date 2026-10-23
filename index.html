@@ -19,8 +19,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- បណ្ណាល័យ PDF.js សម្រាប់បើកមើលឯកសារ PDF ធំៗលើស 20MB គ្រប់ឧបករណ៍ -->
+  <!-- បណ្ណាល័យ PDF.js (អាន PDF ធំៗ) និង JSZip (បើកមើលឯកសារក្នុង .zip ផ្ទាល់) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <style>
     :root, body[data-theme="basic"] {
@@ -83,10 +84,11 @@
     .nav-item.active { background-color: rgba(255,255,255,0.2); color: #fff; font-weight: 600; border-left: 4px solid var(--accent-gold); }
     .nav-item i { font-size: 1.15rem; }
 
-    .storage-area { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 14px; margin-top: auto; color: #fff; }
+    .storage-area { background-color: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 14px; margin-top: auto; color: #fff; cursor: pointer; transition: transform 0.2s; }
+    .storage-area:hover { background-color: rgba(255,255,255,0.08); }
     .storage-header { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 600; margin-bottom: 8px; }
     .progress { height: 6px; border-radius: 4px; background-color: rgba(255,255,255,0.2); margin-bottom: 8px; }
-    .progress-bar { background-color: var(--accent-gold); width: 25%; border-radius: 4px; }
+    .progress-bar { background-color: var(--accent-gold); width: 35%; border-radius: 4px; }
     .storage-desc { font-size: 0.7rem; color: rgba(255,255,255,0.75); line-height: 1.4; margin: 0; }
 
     /* Main Content */
@@ -100,7 +102,7 @@
     .search-bar input::placeholder { color: var(--text-muted); }
     
     .view-toggles { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
-    .view-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background-color: var(--bg-panel); border-radius: 10px; color: var(--text-main); cursor: pointer; transition: all 0.2s; flex-shrink: 0;}
+    .view-btn { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background-color: var(--bg-panel); border-radius: 10px; color: var(--text-main); cursor: pointer; transition: all 0.2s; flex-shrink: 0; position: relative; }
     .view-btn.active { background-color: var(--primary); color: #fff; border-color: var(--primary); }
 
     /* Action Bar */
@@ -173,11 +175,11 @@
     /* Modals */
     .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 2500; display: none; align-items: center; justify-content: center; padding: 16px; }
     .custom-modal-overlay.active { display: flex; }
-    .custom-modal-box { background-color: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 460px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: modalFadeIn 0.2s ease; }
+    .custom-modal-box { background-color: var(--bg-panel); color: var(--text-main); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 480px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.35); animation: modalFadeIn 0.2s ease; }
     .custom-modal-box.modal-xl-box { max-width: 980px; }
     @keyframes modalFadeIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .cm-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
-    .cm-title { margin: 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .cm-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .cm-title { margin: 0; font-size: 1.02rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
     .cm-close { background: none; border: none; color: var(--text-muted); font-size: 1.3rem; cursor: pointer; line-height: 1; }
     .cm-body { padding: 20px; }
     .cm-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); }
@@ -199,32 +201,69 @@
     .tc-linear { background: #060911; border: 3px solid #0ea5e9; }
     .theme-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
 
+    /* ================= មុខងារថ្មីទី១៖ Transfer Center & Bandwidth Widget ================= */
+    .transfer-center {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 360px;
+      max-width: calc(100vw - 28px);
+      background-color: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.28);
+      z-index: 3500;
+      display: none;
+      overflow: hidden;
+      animation: modalFadeIn 0.2s ease;
+    }
+    .transfer-center.active { display: block; }
+    .tc-header {
+      background: var(--bg-sidebar);
+      color: #fff;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+    .tc-speed-badge {
+      background: rgba(255,255,255,0.18);
+      color: var(--accent-gold);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .tc-body { padding: 14px; }
+    .tc-body.minimized { display: none; }
+    .tc-filename { font-size: 0.84rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+    .tc-status-row { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+
+    /* ================= មុខងារថ្មីទី២៖ Archive (.zip) Viewer Table ================= */
+    .zip-viewer-wrap { width: 100%; max-height: 70vh; overflow: auto; background: var(--bg-panel); color: var(--text-main); padding: 16px; text-align: left; }
+    .zip-item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid var(--border); gap: 10px; border-radius: 8px; }
+    .zip-item-row:hover { background-color: var(--hover-bg); }
+
+    /* ================= មុខងារថ្មីទី៣៖ Storage Insights Panel ================= */
+    .storage-multi-bar { height: 14px; border-radius: 8px; background: var(--hover-bg); display: flex; overflow: hidden; margin-bottom: 18px; border: 1px solid var(--border); }
+    .storage-cat-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; background: var(--bg-body); }
+    .storage-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+
     /* Overlay, Toast & PDF Canvas Container */
     .drag-overlay { position: absolute; inset: 16px; background: rgba(37, 99, 235, 0.08); backdrop-filter: blur(2px); border: 3px dashed var(--primary); border-radius: 20px; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; pointer-events: none; }
     .drag-overlay.active { display: flex; pointer-events: auto; }
-    .toast-status { position: fixed; bottom: 20px; right: 20px; background-color: #0f172a; color: #ffffff; padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); z-index: 4000; transform: translateY(120px); opacity: 0; transition: all 0.3s; max-width: calc(100vw - 32px); font-size: 0.88rem; pointer-events: none; }
+    .toast-status { position: fixed; bottom: 20px; left: 20px; background-color: #0f172a; color: #ffffff; padding: 12px 20px; border-radius: 12px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); z-index: 4000; transform: translateY(120px); opacity: 0; transition: all 0.3s; max-width: calc(100vw - 32px); font-size: 0.88rem; pointer-events: none; }
     .toast-status.show { transform: translateY(0); opacity: 1; }
-    #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 78vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; }
+    #previewBody { background-color: #f1f5f9; min-height: 55vh; max-height: 78vh; overflow: auto; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 100%; position: relative; }
     
     .pdf-canvas-list {
-      width: 100%;
-      flex: 1;
-      overflow: auto;
-      background: #334155;
-      padding: 16px 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      max-height: 70vh;
+      width: 100%; flex: 1; overflow: auto; background: #334155; padding: 16px 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 14px; max-height: 70vh;
     }
-    .pdf-page-canvas {
-      background: #fff;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-      border-radius: 4px;
-      max-width: 100%;
-      height: auto !important;
-    }
+    .pdf-page-canvas { background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.35); border-radius: 4px; max-width: 100%; height: auto !important; }
 
     @media (max-width: 768px) {
       .sidebar { position: fixed; top: 0; bottom: 0; left: 0; transform: translateX(-100%); box-shadow: 4px 0 25px rgba(0, 0, 0, 0.25); }
@@ -241,7 +280,8 @@
       .card-icon-wrap { width: 50px; height: 50px; font-size: 1.8rem; margin-bottom: 8px; }
       .card-name { font-size: 0.82rem; }
       .card-meta { font-size: 0.68rem; }
-      .toast-status { left: 16px; right: 16px; bottom: 16px; justify-content: center; }
+      .toast-status { left: 14px; right: 14px; bottom: 14px; justify-content: center; }
+      .transfer-center { left: 14px; right: 14px; bottom: 14px; width: auto; }
     }
   </style>
 </head>
@@ -256,7 +296,7 @@
         <div class="logo-icon"><i class="bi bi-cloud-check-fill"></i></div>
         <div class="logo-text">
           <h2>SOTIP Drive</h2>
-          <p>v3.1 • Preview 20MB+</p>
+          <p>v4.0 • Integrated Edition</p>
         </div>
       </div>
       <button type="button" class="btn-close-sidebar" onclick="toggleSidebar(false)"><i class="bi bi-x-lg"></i></button>
@@ -269,6 +309,9 @@
       <li class="nav-item" id="navAllFiles" onclick="switchTab('ALL_FILES')">
         <i class="bi bi-file-earmark-text"></i> ឯកសារទាំងអស់
       </li>
+      <li class="nav-item" onclick="openStorageInsights(); toggleSidebar(false);">
+        <i class="bi bi-pie-chart-fill text-warning"></i> វិភាគទំហំផ្ទុក
+      </li>
       <li class="nav-item" onclick="syncFromTelegram(); toggleSidebar(false);">
         <i class="bi bi-telegram text-info"></i> Sync ពី Telegram
       </li>
@@ -280,15 +323,15 @@
       </li>
     </ul>
 
-    <div class="storage-area">
+    <div class="storage-area" onclick="openStorageInsights(); toggleSidebar(false);" title="ចុចដើម្បីមើលការវិភាគទំហំផ្ទុកលម្អិត">
       <div class="storage-header">
-        <span>ទំហំប្រើ</span>
+        <span><i class="bi bi-hdd-network me-1"></i> ទំហំប្រើប្រាស់</span>
         <span id="storageUsed">0 B</span>
       </div>
       <div class="progress">
         <div class="progress-bar"></div>
       </div>
-      <p class="storage-desc">រក្សាទុកក្នុង Telegram Cloud (គាំទ្រការបើកមើល និងទាញយកឯកសារធំលើស 20MB)</p>
+      <p class="storage-desc">ចុចទីនេះដើម្បីវិភាគប្រភេទឯកសារ • គាំទ្រឯកសារធំ 20MB+ និង .ZIP</p>
     </div>
   </aside>
 
@@ -308,6 +351,12 @@
         <input type="text" id="searchInput" placeholder="ស្វែងរកឯកសារ..." oninput="filterFiles()">
       </div>
       <div class="view-toggles">
+        <button type="button" class="view-btn" onclick="toggleTransferCenter()" title="ផ្ទាំងគ្រប់គ្រងការបញ្ជូន (Transfer Center)">
+          <i class="bi bi-arrow-down-up text-primary"></i>
+        </button>
+        <button type="button" class="view-btn" onclick="openStorageInsights()" title="វិភាគទំហំផ្ទុក">
+          <i class="bi bi-pie-chart-fill text-success"></i>
+        </button>
         <button type="button" class="view-btn" onclick="openSettingsModal()" title="កំណត់ការតភ្ជាប់ API">
           <i class="bi bi-gear-fill text-secondary"></i>
         </button>
@@ -351,6 +400,34 @@
       <div class="file-grid" id="fileGrid"></div>
     </div>
   </main>
+
+  <!-- ================= មុខងារថ្មី៖ Transfer Center & Bandwidth Widget ================= -->
+  <div class="transfer-center" id="transferCenter">
+    <div class="tc-header">
+      <span><i class="bi bi-cloud-arrow-up-fill me-1"></i> <span id="tcTitle">មជ្ឈមណ្ឌលបញ្ជូនឯកសារ</span></span>
+      <div class="d-flex align-items-center gap-2">
+        <span class="tc-speed-badge" id="tcSpeed">0 KB/s</span>
+        <button type="button" class="btn btn-sm text-white p-0 border-0" onclick="minimizeTransferCenter()" title="បង្រួម/ពង្រីក"><i class="bi bi-dash-lg"></i></button>
+        <button type="button" class="btn btn-sm text-white p-0 border-0" onclick="hideTransferCenter()" title="បិទ"><i class="bi bi-x-lg"></i></button>
+      </div>
+    </div>
+    <div class="tc-body" id="tcBody">
+      <div class="tc-filename" id="tcFileName">មិនទាន់មានប្រតិបត្តិការទេ</div>
+      <div class="tc-status-row">
+        <span id="tcPartInfo">រួចរាល់</span>
+        <span id="tcPercent" class="fw-bold text-primary">0%</span>
+      </div>
+      <div class="progress mb-3" style="height: 8px; background: var(--border);">
+        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" id="tcProgressBar" style="width: 0%;"></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        <small class="text-muted" id="tcSubStatus">Telegram Cloud Engine</small>
+        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" id="btnCancelTransfer" onclick="cancelActiveTransfer()" style="display:none; font-size:0.78rem;">
+          <i class="bi bi-stop-circle me-1"></i>បោះបង់
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast Status -->
   <div class="toast-status" id="toastStatus">
@@ -423,12 +500,20 @@
     </div>
   </div>
 
-  <!-- Modal 2: Preview -->
+  <!-- Modal 2: Preview ឯកសារ + ប៊ូតុងរំកិលមុន/បន្ទាប់ (Slideshow Navigation) -->
   <div class="custom-modal-overlay" id="previewModal">
     <div class="custom-modal-box modal-xl-box">
       <div class="cm-header">
         <h6 class="cm-title text-truncate me-2" id="previewTitle">មើលជាមុន</h6>
         <div class="d-flex gap-2 align-items-center flex-shrink-0">
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-secondary" id="btnPrevFile" onclick="navigatePreview(-1)" title="ឯកសារមុន (ព្រួញឆ្វេង)">
+              <i class="bi bi-chevron-left"></i> មុន
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="btnNextFile" onclick="navigatePreview(1)" title="ឯកសារបន្ទាប់ (ព្រួញស្ដាំ)">
+              បន្ទាប់ <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
           <a href="#" id="btnDownloadPreview" target="_blank" download class="btn btn-primary btn-sm px-3 fw-bold" style="border-radius: 8px;">
             <i class="bi bi-download me-1"></i> ទាញយក
           </a>
@@ -439,7 +524,20 @@
     </div>
   </div>
 
-  <!-- Modal 3: បង្កើត Folder -->
+  <!-- Modal 3: វិភាគទំហំផ្ទុកលម្អិត (Storage Insights Panel) -->
+  <div class="custom-modal-overlay" id="storageModal">
+    <div class="custom-modal-box">
+      <div class="cm-header">
+        <h5 class="cm-title"><i class="bi bi-pie-chart-fill text-success"></i> ការវិភាគទំហំផ្ទុក (Storage Insights)</h5>
+        <button type="button" class="cm-close" onclick="closeModal('storageModal')"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="cm-body" id="storageInsightsBody">
+        <div class="text-center py-4"><div class="spinner-border text-primary"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: បង្កើត Folder -->
   <div class="custom-modal-overlay" id="folderModal">
     <div class="custom-modal-box">
       <div class="cm-header">
@@ -456,7 +554,7 @@
     </div>
   </div>
 
-  <!-- Modal 4: ប្ដូរឈ្មោះ -->
+  <!-- Modal 5: ប្ដូរឈ្មោះ -->
   <div class="custom-modal-overlay" id="renameModal">
     <div class="custom-modal-box">
       <div class="cm-header">
@@ -474,7 +572,7 @@
     </div>
   </div>
 
-  <!-- Modal 5: ផ្លាស់ទី -->
+  <!-- Modal 6: ផ្លាស់ទី -->
   <div class="custom-modal-overlay" id="moveModal">
     <div class="custom-modal-box">
       <div class="cm-header">
@@ -492,7 +590,7 @@
     </div>
   </div>
 
-  <!-- Modal 6: បញ្ជាក់ការលុប -->
+  <!-- Modal 7: បញ្ជាក់ការលុប -->
   <div class="custom-modal-overlay" id="deleteModal">
     <div class="custom-modal-box">
       <div class="cm-header">
@@ -510,7 +608,7 @@
     </div>
   </div>
 
-  <!-- ================= JavaScript (v3.1) ================= -->
+  <!-- ================= JavaScript (v4.0 Integrated Edition) ================= -->
   <script>
     if (typeof pdfjsLib !== 'undefined') {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -520,14 +618,17 @@
 
     let currentParentId = 'root';
     let isUploading = false;
+    let transferCancelRequested = false;
     let tgConfig = { token: '', chatId: '' };
     let allCurrentFiles = [];
     let renderedFiles = [];
+    let currentPreviewIndex = -1;
     let currentPreviewText = '';
     let activeBlobUrl = null;
     let activePdfDoc = null;
     let currentPdfScale = 1.3;
     let previewAbortId = 0;
+    let activeZipInstance = null;
 
     function safeGetStorage(key, fallback) {
       try { return window.localStorage.getItem(key) || fallback; } catch (e) { return fallback; }
@@ -564,6 +665,15 @@
       document.getElementById('folderName').addEventListener('keydown', e => { if (e.key === 'Enter') createFolder(); });
       document.getElementById('newItemName').addEventListener('keydown', e => { if (e.key === 'Enter') submitRename(); });
       document.addEventListener('click', closeAllMenus);
+
+      // គាំទ្រគ្រាប់ចុចព្រួញឆ្វេង/ស្ដាំ សម្រាប់រំកិលមើលឯកសារក្នុងផ្ទាំង Preview
+      document.addEventListener('keydown', function(e) {
+        const previewOpen = document.getElementById('previewModal').classList.contains('active');
+        if (!previewOpen) return;
+        if (e.key === 'ArrowLeft') navigatePreview(-1);
+        else if (e.key === 'ArrowRight') navigatePreview(1);
+        else if (e.key === 'Escape') closeModal('previewModal');
+      });
     });
 
     async function initConnection() {
@@ -603,14 +713,8 @@
       const chatId = document.getElementById('inputChatId').value.trim();
 
       if (url) safeSetStorage('sotip_gas_url', url);
-      if (token) {
-        safeSetStorage('sotip_bot_token', token);
-        tgConfig.token = token;
-      }
-      if (chatId) {
-        safeSetStorage('sotip_chat_id', chatId);
-        tgConfig.chatId = chatId;
-      }
+      if (token) { safeSetStorage('sotip_bot_token', token); tgConfig.token = token; }
+      if (chatId) { safeSetStorage('sotip_chat_id', chatId); tgConfig.chatId = chatId; }
 
       closeModal('settingsModal');
       showToast('✅ បានរក្សាទុកការកំណត់ កំពុងភ្ជាប់...', true);
@@ -661,6 +765,129 @@
       const result = await response.json();
       if (result && result.error) throw new Error(result.error);
       return result;
+    }
+
+    // ================== មុខងារគ្រប់គ្រង Transfer Center & Speed Widget ==================
+    function updateTransferUI(opts) {
+      const box = document.getElementById('transferCenter');
+      if (opts.show) box.classList.add('active');
+      if (opts.title) document.getElementById('tcTitle').textContent = opts.title;
+      if (opts.fileName !== undefined) document.getElementById('tcFileName').textContent = opts.fileName;
+      if (opts.partInfo !== undefined) document.getElementById('tcPartInfo').textContent = opts.partInfo;
+      if (opts.percent !== undefined) {
+        document.getElementById('tcPercent').textContent = opts.percent + '%';
+        document.getElementById('tcProgressBar').style.width = opts.percent + '%';
+      }
+      if (opts.speed !== undefined) document.getElementById('tcSpeed').textContent = opts.speed;
+      if (opts.subStatus !== undefined) document.getElementById('tcSubStatus').textContent = opts.subStatus;
+      if (opts.canCancel !== undefined) {
+        document.getElementById('btnCancelTransfer').style.display = opts.canCancel ? 'inline-block' : 'none';
+      }
+    }
+
+    function toggleTransferCenter() {
+      document.getElementById('transferCenter').classList.toggle('active');
+    }
+    function minimizeTransferCenter() {
+      document.getElementById('tcBody').classList.toggle('minimized');
+    }
+    function hideTransferCenter() {
+      document.getElementById('transferCenter').classList.remove('active');
+    }
+    function cancelActiveTransfer() {
+      transferCancelRequested = true;
+      showToast('🛑 កំពុងបោះបង់ការបញ្ជូន...', false);
+    }
+
+    function formatSpeed(bytesTransferred, elapsedMs) {
+      if (!elapsedMs || elapsedMs <= 0) return '0 KB/s';
+      const bytesPerSec = (bytesTransferred / elapsedMs) * 1000;
+      if (bytesPerSec >= 1048576) return (bytesPerSec / 1048576).toFixed(2) + ' MB/s';
+      return Math.max(1, Math.round(bytesPerSec / 1024)) + ' KB/s';
+    }
+
+    // ================== មុខងារវិភាគទំហំផ្ទុក (Storage Insights Panel) ==================
+    function parseSizeStrToBytes(sizeStr) {
+      if (!sizeStr) return 0;
+      const parts = String(sizeStr).trim().split(/\s+/);
+      const val = parseFloat(parts[0]);
+      if (isNaN(val)) return 0;
+      const unit = (parts[1] || 'B').toUpperCase();
+      if (unit === 'KB') return val * 1024;
+      if (unit === 'MB') return val * 1048576;
+      if (unit === 'GB') return val * 1073741824;
+      return val;
+    }
+
+    async function openStorageInsights() {
+      openModal('storageModal');
+      const body = document.getElementById('storageInsightsBody');
+      body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary mb-2"></div><p class="small text-muted mb-0">កំពុងគណនាទំហំឯកសារទាំងអស់...</p></div>';
+
+      try {
+        const res = await apiCall('getFilesList', { parentId: 'ALL_FILES' });
+        const files = (res && res.files) ? res.files : [];
+        
+        const cats = {
+          images: { label: 'រូបភាព (Images)', color: '#10b981', bytes: 0, count: 0 },
+          videos: { label: 'វីដេអូ (Videos)', color: '#a855f7', bytes: 0, count: 0 },
+          docs:   { label: 'ឯកសារ & PDF (Docs)', color: '#3b82f6', bytes: 0, count: 0 },
+          audio:  { label: 'សំឡេង (Audio)', color: '#0ea5e9', bytes: 0, count: 0 },
+          other:  { label: 'បណ្ណសារ & ផ្សេងៗ (ZIP/Other)', color: '#f59e0b', bytes: 0, count: 0 }
+        };
+
+        let totalBytes = 0;
+        files.forEach(f => {
+          if (f.type === 'folder') return;
+          const b = parseSizeStrToBytes(f.size);
+          totalBytes += b;
+          const ext = String(f.name || '').split('.').pop().toLowerCase();
+          if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif', 'heic'].includes(ext)) {
+            cats.images.bytes += b; cats.images.count++;
+          } else if (['mp4', 'mov', 'avi', 'mkv', 'webm', 'flv', 'm4v', '3gp'].includes(ext)) {
+            cats.videos.bytes += b; cats.videos.count++;
+          } else if (['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'md', 'json', 'html', 'js', 'css', 'gs'].includes(ext)) {
+            cats.docs.bytes += b; cats.docs.count++;
+          } else if (['mp3', 'wav', 'm4a', 'ogg', 'aac', 'flac', 'opus'].includes(ext)) {
+            cats.audio.bytes += b; cats.audio.count++;
+          } else {
+            cats.other.bytes += b; cats.other.count++;
+          }
+        });
+
+        let barHtml = '';
+        let listHtml = '';
+        Object.keys(cats).forEach(k => {
+          const c = cats[k];
+          const pct = totalBytes > 0 ? Math.max(2, Math.round((c.bytes / totalBytes) * 100)) : 0;
+          if (c.bytes > 0) {
+            barHtml += `<div style="width:${pct}%; background:${c.color};" title="${c.label}: ${formatSize(c.bytes)}"></div>`;
+          }
+          listHtml += `
+            <div class="storage-cat-item">
+              <div>
+                <span class="storage-dot" style="background:${c.color};"></span>
+                <span class="fw-semibold" style="font-size:0.88rem;">${c.label}</span>
+                <span class="badge bg-secondary ms-1" style="font-size:0.7rem;">${c.count} ឯកសារ</span>
+              </div>
+              <div class="fw-bold" style="font-size:0.88rem;">${formatSize(c.bytes)}</div>
+            </div>`;
+        });
+
+        body.innerHTML = `
+          <div class="d-flex justify-content-between align-items-end mb-2">
+            <div>
+              <span class="text-muted small">ទំហំប្រើប្រាស់សរុបក្នុង Telegram Cloud</span>
+              <h4 class="fw-bold mb-0 text-primary">${formatSize(totalBytes)}</h4>
+            </div>
+            <span class="badge bg-success">${files.length} ឯកសារសរុប</span>
+          </div>
+          <div class="storage-multi-bar">${barHtml || '<div style="width:100%; background:#cbd5e1;"></div>'}</div>
+          ${listHtml}
+        `;
+      } catch (err) {
+        body.innerHTML = `<p class="text-danger text-center mb-0">❌ មិនអាចគណនាទំហំផ្ទុកបានទេ៖ ${escapeHtml(err.message)}</p>`;
+      }
     }
 
     // ================== ការគ្រប់គ្រងផ្ទាំង UI ==================
@@ -753,6 +980,7 @@
         png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml', bmp: 'image/bmp',
         mp4: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', mkv: 'video/x-matroska',
         mp3: 'audio/mpeg', wav: 'audio/wav', m4a: 'audio/mp4', ogg: 'audio/ogg', flac: 'audio/flac',
+        zip: 'application/zip',
         txt: 'text/plain;charset=utf-8', html: 'text/html;charset=utf-8', css: 'text/css;charset=utf-8', js: 'text/javascript;charset=utf-8', json: 'application/json;charset=utf-8'
       };
       return map[ext] || 'application/octet-stream';
@@ -827,8 +1055,26 @@
       closeAllMenus();
       const item = renderedFiles[idx];
       if (!item) return;
-      if (item.type === 'folder') navigateTo(item.id);
-      else openPreview(item.fileId, item.name);
+      if (item.type === 'folder') {
+        navigateTo(item.id);
+      } else {
+        currentPreviewIndex = idx;
+        openPreview(item.fileId, item.name);
+      }
+    }
+
+    // មុខងាររំកិលទៅឯកសារមុន ឬបន្ទាប់ (Slideshow Navigation)
+    function navigatePreview(direction) {
+      if (!renderedFiles || renderedFiles.length === 0) return;
+      let nextIdx = currentPreviewIndex;
+      for (let step = 0; step < renderedFiles.length; step++) {
+        nextIdx = (nextIdx + direction + renderedFiles.length) % renderedFiles.length;
+        if (renderedFiles[nextIdx] && renderedFiles[nextIdx].type !== 'folder') {
+          currentPreviewIndex = nextIdx;
+          openPreview(renderedFiles[nextIdx].fileId, renderedFiles[nextIdx].name);
+          return;
+        }
+      }
     }
 
     function filterFiles() {
@@ -941,7 +1187,7 @@
       directDownload(item.fileId, item.name);
     }
 
-    // ================= 1. មុខងារ Upload ឯកសារ (គាំទ្រទំហំធំជាង 20MB ដោយបំបែកជាដុំ) =================
+    // ================= 1. មុខងារ Upload ឯកសារ + Transfer Center Speed Tracking =================
     async function handleFiles(fileList) {
       if (!fileList || fileList.length === 0) return;
       if (isUploading) {
@@ -954,6 +1200,8 @@
       document.getElementById('folderUploadInput').value = '';
 
       isUploading = true;
+      transferCancelRequested = false;
+
       try {
         if (!tgConfig || !tgConfig.token || String(tgConfig.token).includes('ដាក់_BOT_TOKEN')) {
           showToast('កំពុងពិនិត្យការភ្ជាប់ទៅ Server...', true);
@@ -981,11 +1229,23 @@
         let lastErrorMsg = '';
 
         for (let i = 0; i < files.length; i++) {
+          if (transferCancelRequested) break;
           const file = files[i];
+          const startTime = Date.now();
+
+          updateTransferUI({
+            show: true,
+            title: `កំពុង Upload (${i + 1}/${files.length})`,
+            fileName: file.name,
+            partInfo: `ទំហំសរុប៖ ${formatSize(file.size)}`,
+            percent: 5,
+            speed: 'កំពុងគណនា...',
+            subStatus: 'កំពុងបញ្ជូនទៅ Telegram Cloud...',
+            canCancel: true
+          });
 
           try {
             if (file.size <= SINGLE_LIMIT) {
-              showToast(`កំពុង Upload (${i + 1}/${files.length}): ${file.name}...`, true);
               const formData = new FormData();
               formData.append('chat_id', tgConfig.chatId);
               formData.append('document', file, file.name);
@@ -995,17 +1255,20 @@
                 body: formData
               });
               const res = await response.json();
+              const speedStr = formatSpeed(file.size, Date.now() - startTime);
 
               if (res.ok && res.result) {
                 const r = res.result;
                 const doc = r.document || r.video || r.audio || r.animation || r.sticker || r.voice || (r.photo ? r.photo[r.photo.length - 1] : null);
                 if (doc && doc.file_id) {
+                  updateTransferUI({ percent: 95, speed: speedStr, subStatus: 'កំពុងកត់ត្រាចូលបញ្ជី...' });
                   await apiCall('saveFileInfo', {
                     filename: file.name,
                     fileId: doc.file_id,
                     parentId: currentParentId,
                     sizeStr: formatSize(file.size)
                   });
+                  updateTransferUI({ percent: 100, speed: speedStr, partInfo: 'Upload ជោគជ័យ', canCancel: false });
                 } else {
                   throw new Error('Telegram មិនបានបញ្ជូន file_id ត្រឡប់មកវិញទេ');
                 }
@@ -1015,14 +1278,19 @@
             } else {
               const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
               const chunkFileIds = [];
+              let uploadedBytes = 0;
 
               for (let c = 0; c < totalChunks; c++) {
+                if (transferCancelRequested) throw new Error('ត្រូវបានបោះបង់ដោយអ្នកប្រើប្រាស់');
                 const start = c * CHUNK_SIZE;
                 const end = Math.min(start + CHUNK_SIZE, file.size);
                 const chunkBlob = file.slice(start, end, 'application/octet-stream');
                 
-                const percent = Math.round(((c + 1) / totalChunks) * 100);
-                showToast(`កំពុង Upload "${file.name}" ផ្នែកទី ${c + 1}/${totalChunks} (${percent}%)...`, true);
+                const percent = Math.round(((c) / totalChunks) * 100);
+                updateTransferUI({
+                  partInfo: `ផ្នែកទី ${c + 1}/${totalChunks} (${formatSize(uploadedBytes)} / ${formatSize(file.size)})`,
+                  percent: percent
+                });
 
                 const formData = new FormData();
                 formData.append('chat_id', tgConfig.chatId);
@@ -1039,6 +1307,12 @@
                   const doc = r.document || r.video || r.audio || r.animation;
                   if (doc && doc.file_id) {
                     chunkFileIds.push(doc.file_id);
+                    uploadedBytes += (end - start);
+                    const speedStr = formatSpeed(uploadedBytes, Date.now() - startTime);
+                    updateTransferUI({
+                      percent: Math.round(((c + 1) / totalChunks) * 100),
+                      speed: speedStr
+                    });
                   } else {
                     throw new Error(`បាត់ file_id ត្រង់ផ្នែកទី ${c + 1}`);
                   }
@@ -1047,7 +1321,7 @@
                 }
               }
 
-              showToast(`កំពុងរក្សាទុកទិន្នន័យ "${file.name}"...`, true);
+              updateTransferUI({ subStatus: 'កំពុងរក្សាទុកទិន្នន័យ...', canCancel: false });
               const combinedFileId = 'CHUNKED:' + chunkFileIds.join(',');
               await apiCall('saveFileInfo', {
                 filename: file.name,
@@ -1055,14 +1329,18 @@
                 parentId: currentParentId,
                 sizeStr: formatSize(file.size)
               });
+              updateTransferUI({ partInfo: 'Upload រួចរាល់ ១០០%', percent: 100, canCancel: false });
             }
           } catch (e) {
             hasError = true;
             lastErrorMsg = e.message;
+            updateTransferUI({ partInfo: 'បរាជ័យ៖ ' + e.message, canCancel: false });
           }
         }
 
-        if (hasError) {
+        if (transferCancelRequested) {
+          showToast('🛑 បានបោះបង់ការ Upload', false);
+        } else if (hasError) {
           alert('⚠️ បរាជ័យក្នុងការ Upload:\n' + lastErrorMsg);
           showToast('❌ បរាជ័យ: ' + lastErrorMsg, false);
         } else {
@@ -1074,7 +1352,82 @@
       }
     }
 
-    // ================= 2. មុខងារបង្ហាញ PDF ផ្ទាល់ (Built-in PDF.js Viewer គាំទ្រឯកសារ 20MB+) =================
+    // ================= 2. មុខងារបើកមើលឯកសារ .ZIP ផ្ទាល់ (ArchiveViewerModal) =================
+    async function renderZipArchiveViewer(uint8Array, fileName, downloadUrl) {
+      const pBody = document.getElementById('previewBody');
+      if (typeof JSZip === 'undefined') {
+        pBody.innerHTML = `<div class="p-5 text-center text-dark"><p>មិនអាចផ្ទុកបណ្ណាល័យ JSZip បានទេ។</p><a href="${downloadUrl}" download="${escapeHtml(fileName)}" class="btn btn-primary">ទាញយក .ZIP</a></div>`;
+        return;
+      }
+
+      try {
+        pBody.innerHTML = `<div class="p-5 text-center text-dark"><div class="spinner-border text-warning mb-2"></div><p class="small mb-0">កំពុងអានបញ្ជីឯកសារក្នុង ${escapeHtml(fileName)}...</p></div>`;
+        activeZipInstance = await JSZip.loadAsync(uint8Array);
+        const entries = [];
+        activeZipInstance.forEach((relativePath, zipEntry) => {
+          if (!zipEntry.dir) entries.push(zipEntry);
+        });
+
+        if (entries.length === 0) {
+          pBody.innerHTML = `<div class="p-5 text-center text-dark"><i class="bi bi-file-earmark-zip text-warning" style="font-size:3.5rem;"></i><h6 class="mt-2">បណ្ណសារ .ZIP នេះទទេ</h6></div>`;
+          return;
+        }
+
+        let rowsHtml = '';
+        entries.forEach((entry, idx) => {
+          const sizeBytes = entry._data && entry._data.uncompressedSize ? entry._data.uncompressedSize : 0;
+          const vis = getFileVisual(entry.name, false);
+          rowsHtml += `
+            <div class="zip-item-row">
+              <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <i class="bi ${vis.icon}" style="font-size:1.3rem; color:${vis.color}; flex-shrink:0;"></i>
+                <div class="text-truncate">
+                  <div class="fw-semibold text-truncate" style="font-size:0.85rem;">${escapeHtml(entry.name)}</div>
+                  <div class="text-muted" style="font-size:0.72rem;">${sizeBytes ? formatSize(sizeBytes) : 'ឯកសារក្នុង ZIP'}</div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-primary flex-shrink-0" onclick="extractSingleZipEntry(${idx})">
+                <i class="bi bi-download me-1"></i>ស្រង់យក
+              </button>
+            </div>`;
+        });
+
+        window._currentZipEntries = entries;
+        pBody.innerHTML = `
+          <div class="zip-viewer-wrap">
+            <div class="d-flex justify-content-between align-items-center pb-2 mb-2 border-bottom">
+              <span class="fw-bold text-warning"><i class="bi bi-file-earmark-zip-fill me-1"></i> ឯកសារខាងក្នុងសរុប៖ ${entries.length} ឯកសារ</span>
+              <span class="small text-muted">ចុច "ស្រង់យក" ដើម្បីទាញយកឯកសារនីមួយៗផ្ទាល់</span>
+            </div>
+            ${rowsHtml}
+          </div>`;
+      } catch (err) {
+        pBody.innerHTML = `<div class="p-5 text-center text-dark"><p class="text-danger">មិនអាចពន្លាមើលឯកសារ .ZIP នេះបានទេ (${escapeHtml(err.message)})</p></div>`;
+      }
+    }
+
+    async function extractSingleZipEntry(idx) {
+      if (!window._currentZipEntries || !window._currentZipEntries[idx]) return;
+      const entry = window._currentZipEntries[idx];
+      const pureName = entry.name.split('/').pop() || 'extracted_file';
+      showToast(`កំពុងស្រង់យក "${pureName}"...`, true);
+      try {
+        const blob = await entry.async('blob');
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = pureName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+        showToast(`✅ បានស្រង់យក "${pureName}"!`, false);
+      } catch (e) {
+        showToast('❌ បរាជ័យ៖ ' + e.message, false);
+      }
+    }
+
+    // ================= 3. មុខងារបង្ហាញ PDF ផ្ទាល់ (PDF.js Viewer) =================
     async function renderPdfWithPdfJs(uint8Array, blobUrl, fileName) {
       const pBody = document.getElementById('previewBody');
       if (typeof pdfjsLib === 'undefined') {
@@ -1143,7 +1496,7 @@
       drawAllPdfPages();
     }
 
-    // ================= 3. មុខងារ Preview គ្រប់ប្រភេទឯកសារ (រួមទាំងឯកសារលើស 20MB) =================
+    // ================= 4. មុខងារ Preview គ្រប់ប្រភេទឯកសារ (រួមទាំង 20MB+ និង .ZIP) =================
     async function openPreview(fileId, fileName) {
       const currentTask = ++previewAbortId;
       const vis = getFileVisual(fileName, false);
@@ -1155,10 +1508,11 @@
       const pBody = document.getElementById('previewBody');
       const btnDl = document.getElementById('btnDownloadPreview');
 
-      // ករណីទី ១៖ ឯកសារធំលើស 20MB ដែលបានបំបែកជាដុំ (CHUNKED) -> ទាញមកផ្គុំហើយបើក Preview ផ្ទាល់!
+      // ករណីទី ១៖ ឯកសារធំលើស 20MB (CHUNKED)
       if (String(fileId).startsWith('CHUNKED:')) {
         const chunkIds = String(fileId).replace('CHUNKED:', '').split(',');
         const totalParts = chunkIds.length;
+        const startTime = Date.now();
 
         btnDl.removeAttribute('href');
         btnDl.removeAttribute('target');
@@ -1183,11 +1537,11 @@
           let totalLength = 0;
 
           for (let i = 0; i < totalParts; i++) {
-            if (currentTask !== previewAbortId) return; // បើអ្នកប្រើបិទផ្ទាំង Modal ឱ្យឈប់ទាញ
+            if (currentTask !== previewAbortId) return;
             const percent = Math.round(((i + 1) / totalParts) * 100);
             const statusEl = document.getElementById('chunkPreviewStatus');
             const barEl = document.getElementById('chunkPreviewBar');
-            if (statusEl) statusEl.textContent = `កំពុងទាញយក និងផ្គុំឯកសារដើម្បីបើកមើល ផ្នែកទី ${i + 1}/${totalParts} (${percent}%)...`;
+            if (statusEl) statusEl.textContent = `កំពុងទាញយក និងផ្គុំឯកសារ ផ្នែកទី ${i + 1}/${totalParts} (${percent}%)...`;
             if (barEl) barEl.style.width = percent + '%';
 
             const res = await apiCall('downloadChunk', { fileId: chunkIds[i] });
@@ -1202,11 +1556,15 @@
             }
             byteArrays.push(byteNumbers);
             totalLength += byteNumbers.length;
+
+            updateTransferUI({
+              show: false,
+              speed: formatSpeed(totalLength, Date.now() - startTime)
+            });
           }
 
           if (currentTask !== previewAbortId) return;
 
-          // ផ្គុំបំណែកទាំងអស់ចូលគ្នាជាទិន្នន័យដើម
           const combinedUint8 = new Uint8Array(totalLength);
           let offset = 0;
           for (const arr of byteArrays) {
@@ -1219,14 +1577,14 @@
           if (activeBlobUrl) URL.revokeObjectURL(activeBlobUrl);
           activeBlobUrl = URL.createObjectURL(finalBlob);
 
-          // កំណត់ប៊ូតុង "ទាញយក" ខាងលើឱ្យទាញយកឯកសារដែលផ្គុំរួចនេះភ្លាមៗតែម្ដង
           btnDl.onclick = null;
           btnDl.href = activeBlobUrl;
           btnDl.download = fileName;
 
-          // បង្ហាញឯកសារតាមប្រភេទនីមួយៗ
           if (ext === 'pdf') {
             await renderPdfWithPdfJs(combinedUint8, activeBlobUrl, fileName);
+          } else if (ext === 'zip') {
+            await renderZipArchiveViewer(combinedUint8, fileName, activeBlobUrl);
           } else if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp', 'ico', 'avif'].includes(ext)) {
             pBody.innerHTML = `<img src="${activeBlobUrl}" style="max-width:100%; max-height:72vh; object-fit:contain; padding:12px;">`;
           } else if (['mp4', 'webm', 'mov', 'ogg', 'm4v', 'mkv', '3gp'].includes(ext)) {
@@ -1295,6 +1653,21 @@
         pBody.innerHTML = '<div class="spinner-border text-primary my-5"></div>';
         openModal('previewModal');
 
+        // ប្រសិនបើជាឯកសារ .ZIP តូចជាង 20MB
+        if (ext === 'zip') {
+          try {
+            const chunkRes = await apiCall('downloadChunk', { fileId: fileId });
+            if (chunkRes && chunkRes.ok && chunkRes.base64) {
+              const binaryStr = atob(chunkRes.base64);
+              const bytes = new Uint8Array(binaryStr.length);
+              for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+              await renderZipArchiveViewer(bytes, fileName, fileUrl);
+              return;
+            }
+          } catch (e) {}
+        }
+
+        // ប្រសិនបើជាឯកសារអត្ថបទ ឬកូដ (.txt, .gs, .html...)
         if (textExtensions.includes(ext)) {
           try {
             const chunkRes = await apiCall('downloadChunk', { fileId: fileId });
@@ -1400,16 +1773,34 @@
       });
     }
 
-    // ================= 4. មុខងារ Download និងផ្គុំឯកសារធំៗបញ្ចូលគ្នាវិញ =================
+    // ================= 5. មុខងារ Download + Transfer Center Speed Tracking =================
     async function directDownload(fileId, fileName = 'downloaded_file') {
       if (String(fileId).startsWith('CHUNKED:')) {
         const chunkIds = String(fileId).replace('CHUNKED:', '').split(',');
         const byteArrays = [];
+        let downloadedBytes = 0;
+        const startTime = Date.now();
+        transferCancelRequested = false;
+
+        updateTransferUI({
+          show: true,
+          title: 'កំពុងទាញយក និងផ្គុំឯកសារ',
+          fileName: fileName,
+          partInfo: `ផ្នែកទី 1/${chunkIds.length}`,
+          percent: 5,
+          speed: 'កំពុងគណនា...',
+          subStatus: 'កំពុងទាញពី Telegram Cloud...',
+          canCancel: true
+        });
 
         try {
           for (let i = 0; i < chunkIds.length; i++) {
+            if (transferCancelRequested) throw new Error('ត្រូវបានបោះបង់ដោយអ្នកប្រើប្រាស់');
             const percent = Math.round(((i + 1) / chunkIds.length) * 100);
-            showToast(`កំពុងទាញយក និងផ្គុំឯកសារ ${i + 1}/${chunkIds.length} (${percent}%)...`, true);
+            updateTransferUI({
+              partInfo: `កំពុងផ្គុំផ្នែកទី ${i + 1}/${chunkIds.length}`,
+              percent: percent
+            });
             
             const res = await apiCall('downloadChunk', { fileId: chunkIds[i] });
             if (!res || !res.ok || !res.base64) {
@@ -1422,9 +1813,15 @@
               byteNumbers[j] = byteCharacters.charCodeAt(j);
             }
             byteArrays.push(byteNumbers);
+            downloadedBytes += byteNumbers.length;
+
+            updateTransferUI({
+              speed: formatSpeed(downloadedBytes, Date.now() - startTime),
+              subStatus: `ទាញបាន ${formatSize(downloadedBytes)}`
+            });
           }
 
-          showToast('កំពុងរៀបចំឯកសារដើម...', true);
+          updateTransferUI({ partInfo: 'ផ្គុំឯកសាររួចរាល់ ១០០%', percent: 100, canCancel: false });
           const ext = String(fileName || '').split('.').pop().toLowerCase();
           const finalBlob = new Blob(byteArrays, { type: getMimeTypeByExt(ext) });
           const downloadUrl = URL.createObjectURL(finalBlob);
@@ -1439,8 +1836,8 @@
 
           showToast('✅ ទាញយករួចរាល់!', false);
         } catch (err) {
-          alert('❌ បរាជ័យក្នុងការទាញយកឯកសារធំ៖\n' + err.message);
-          showToast('❌ បរាជ័យ: ' + err.message, false);
+          updateTransferUI({ partInfo: 'បរាជ័យ៖ ' + err.message, canCancel: false });
+          if (!transferCancelRequested) alert('❌ បរាជ័យក្នុងការទាញយកឯកសារធំ៖\n' + err.message);
         }
         return;
       }
@@ -1461,6 +1858,7 @@
     function stopMedia() {
       previewAbortId++;
       activePdfDoc = null;
+      activeZipInstance = null;
       document.getElementById('previewBody').innerHTML = '';
       if (activeBlobUrl) {
         URL.revokeObjectURL(activeBlobUrl);
